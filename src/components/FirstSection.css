@@ -1,0 +1,3 @@
+.componentsList::-webkit-scrollbar {
+  display: none;
+}

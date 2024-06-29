@@ -1,0 +1,7 @@
+.nav-top li {
+  list-style: none;
+}
+.nav-top a {
+  text-decoration: none;
+  color: inherit;
+}
