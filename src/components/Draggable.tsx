@@ -16,16 +16,16 @@ const Draggable: React.FC<DraggableProps> = ({ id, content }) => {
         cursor: 'move',
         padding: "0.5rem",
         borderBottom: "1px solid #fff",
-        listStyle: "none",
+        // listStyle: "none",
         backgroundColor: "#1e8791",
         width: "10rem"
 
     };
 
     return (
-        <li ref={setNodeRef} style={style} {...listeners} {...attributes}>
+        <p ref={setNodeRef} style={style} {...listeners} {...attributes}>
             {content}
-        </li>
+        </p>
     );
 };
 

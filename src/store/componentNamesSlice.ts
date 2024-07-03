@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface ComponentNamesState {
-  names: string[];
+  names: { [key: number]: string };
 }
 
 const initialState: ComponentNamesState = {
-  names: [],
+  names: {},
 };
 
 const componentNamesSlice = createSlice({
@@ -13,10 +13,14 @@ const componentNamesSlice = createSlice({
   initialState,
   reducers: {
     addComponentName: (state, action: PayloadAction<string>) => {
-      state.names.push(action.payload);
+      // const { index, name } = action.payload;
+      // state.names[index] = name;
+      const newIndex = Object.keys(state.names).length + 1; // Generate a new index
+      state.names[newIndex] = action.payload;
     },
     removeComponentName: (state, action: PayloadAction<number>) => {
-      state.names.splice(action.payload, 1);
+      const indexToRemove = action.payload;
+      delete state.names[indexToRemove];
     },
     clearComponentNames: (state) => {
       state.names = [];

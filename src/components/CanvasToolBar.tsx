@@ -14,8 +14,9 @@ const styles: {
 }[] = [
         {
             canvasNav: {
+                border: "2px solid black",
                 backgroundColor: "#176971",
-                width: "100%",
+                maxWidth: "100%",
                 height: "10vh",
                 color: "#FFF",
                 display: "grid",

@@ -1,3 +1,34 @@
-.componentsList::-webkit-scrollbar {
+.component-menu {
+  /* position: relative; */
+  display: inline-block;
+  width: 100vw;
+  background-color: #1e8791;
+}
+
+.dropdown-button {
+  background-color: #1e8791;
+  padding: 10px;
+  cursor: pointer;
+  border: 1px solid #fff;
+  margin: 0.5rem;
+}
+
+.custom-dropdown {
+  position: absolute;
+  height: 80vh;
+  overflow: auto;
+  z-index: 1000;
+  display: block;
+  border: 1px solid #ccc;
+  list-style-type: none;
+}
+.custom-dropdown::-webkit-scrollbar {
   display: none;
+}
+.dropdown-item {
+  cursor: move;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
 }

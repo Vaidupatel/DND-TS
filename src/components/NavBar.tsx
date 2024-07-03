@@ -21,7 +21,9 @@ const styles: {
     navLogo?: React.CSSProperties
 }[] = [
         {
-            nav: { backgroundColor: '#555', color: '#f5f5f5', height: "10vh", padding: '0.5rem', display: "flex" },
+            nav: {
+                width: "100vw", height: "10vh", backgroundColor: '#555', color: '#f5f5f5', padding: '0.5rem', display: "flex"
+            },
             navLogo: { backgroundColor: "transparent", border: "1px solid #fff", fontSize: "1rem", padding: "0.5rem", borderRadius: "0.5rem", cursor: "pointer" }
         },
     ];

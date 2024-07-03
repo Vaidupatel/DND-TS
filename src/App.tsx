@@ -3,6 +3,7 @@ import FirstSection from './components/FirstSection'
 import { Provider } from 'react-redux';
 import NavBar from './components/NavBar'
 import store from './store/store';
+import Test from './components/Test';
 
 function App() {
 
@@ -11,6 +12,7 @@ function App() {
       <Provider store={store}>
         <NavBar />
         <FirstSection />
+        {/* <Test /> */}
       </Provider>
     </>
   )
