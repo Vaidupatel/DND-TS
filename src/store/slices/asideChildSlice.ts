@@ -20,8 +20,9 @@ const asideChildSlice = createSlice({
         },
         removeAsideChild: (state, action: PayloadAction<{ AsideId: string, componentIndex: number }>) => {
             const { AsideId, componentIndex } = action.payload;
+
             if (state[AsideId]) {
-                state[AsideId].splice(componentIndex, 1);
+                delete state[AsideId][componentIndex];
             }
         },
         clearAsideChildren: (state, action: PayloadAction<{ AsideId: string }>) => {
@@ -30,9 +31,12 @@ const asideChildSlice = createSlice({
                 state[AsideId] = [];
             }
         },
+        setInitialAsideChild: () => {
+            return initialState;
+        }
     },
 });
 
-export const { addAsideChild, removeAsideChild, clearAsideChildren } = asideChildSlice.actions;
+export const { addAsideChild, removeAsideChild, clearAsideChildren, setInitialAsideChild } = asideChildSlice.actions;
 
 export default asideChildSlice.reducer;

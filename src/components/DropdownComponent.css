@@ -1,0 +1,19 @@
+.custom-dropdown {
+  position: absolute;
+  z-index: 1000;
+  list-style-type: none;
+  max-height: 50vh;
+  overflow: auto;
+}
+.dropdown-button {
+  background-color: transparent;
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  margin: 1px;
+}
+.custom-dropdown::-webkit-scrollbar {
+  display: none;
+}

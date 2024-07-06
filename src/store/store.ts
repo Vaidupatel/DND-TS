@@ -1,16 +1,22 @@
 import { configureStore } from '@reduxjs/toolkit';
-// import counterReducer, { CounterState } from './counterSlice';
-import componentNamesReducer from './componentNamesSlice';
-import divChildReducer from './divChildListSlice'
-import spanChildReducer from './spanChildSlice';
-import sectionReducer from "./sectionChildSlice"
-import headerChildReducer from './headerChildSlice';
-import footerChilReducer from './footerChildSlice'
-import mainChildReducer from './mainChildSlice';
-import articaleReducer from './articaleChildSlice';
-import asideReducer from './asideChildSlice'
-import navReducer from './navChildSlice'
-
+import componentNamesReducer from './slices/componentNamesSlice';
+import divChildReducer from './slices/divChildListSlice'
+import spanChildReducer from './slices/spanChildSlice';
+import sectionReducer from "./slices/sectionChildSlice"
+import headerChildReducer from './slices/headerChildSlice';
+import footerChilReducer from './slices/footerChildSlice'
+import mainChildReducer from './slices/mainChildSlice';
+import articleReducer from './slices/articleChildSlice';
+import asideReducer from './slices/asideChildSlice';
+import navReducer from './slices/navChildSlice';
+import ulReducer from './slices/ulChildSlice';
+import olReducer from './slices/olChildSlice';
+import dlReducer from './slices/dlChildSlice';
+import fieldSetReducer from './slices/fieldsetChildSlice';
+import formReducer from './slices/formChildSlice';
+import tableReducer from './slices/tableChildSlice';
+import iFrameReducer from './slices/iFrameChildSlice';
+import figureReducer from './slices/figureChildSlice';
 const store = configureStore({
     reducer: {
         // counter: counterReducer,
@@ -21,9 +27,17 @@ const store = configureStore({
         headerChild: headerChildReducer,
         footerChild: footerChilReducer,
         mainChild: mainChildReducer,
-        articaleChild: articaleReducer,
+        articleChild: articleReducer,
         asideChild: asideReducer,
         navChild: navReducer,
+        ulChild: ulReducer,
+        olChild: olReducer,
+        dlChild: dlReducer,
+        fieldSetChild: fieldSetReducer,
+        formChild: formReducer,
+        tableChild: tableReducer,
+        iFrameChild: iFrameReducer,
+        figureChild: figureReducer,
     },
 });
 

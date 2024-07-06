@@ -1,30 +1,56 @@
 import React, { useEffect, useMemo, useState } from 'react';
 // import useContextMenu from '../../hooks/useContextMenu';
-import { removeDivChild } from '../../store//divChildListSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDroppable } from '@dnd-kit/core';
-import { removeComponentName } from '../../store/componentNamesSlice';
+import { removeComponentName } from '../../store/slices/componentNamesSlice';
 import { RootState } from '../../store/store';
 import SectionComponent from './SectionComponent ';
 import HeaderComponent from './HeaderComponent ';
 import FooterComponent from './FooterComponent ';
 import MainComponent from './MainComponent ';
-import ArticleComponent from './ArticaleComponent ';
 import AsideComponent from './AsideComponent ';
 import NavComponent from './NavComponent ';
 import { createSelector } from '@reduxjs/toolkit';
+import { removeSpanChild } from '../../store/slices/spanChildSlice';
+import { removeDivChild } from '../../store/slices/divChildListSlice';
 import DivComponent from './DivComponent';
+import ArticleComponent from './ArticleComponent';
+import UlComponent from './UlComponent ';
+import OlComponent from './OlComponent ';
+import DlComponent from './DlComponent ';
+import FieldSetComponent from './FieldSetComponent ';
+import FormComponent from './FormComponent ';
+import TableComponent from './TableComponent ';
+import IFrameComponent from './IFrameComponent ';
+import FigureComponent from './FigureComponent ';
+import { removeSectionChild } from '../../store/slices/sectionChildSlice';
+import { removeHeaderChild } from '../../store/slices/headerChildSlice';
+import { removeFooterChild } from '../../store/slices/footerChildSlice';
+import { removeMainChild } from '../../store/slices/mainChildSlice';
+import { removeArticleChild } from '../../store/slices/articleChildSlice';
+import { removeAsideChild } from '../../store/slices/asideChildSlice';
+import { removeNavChild } from '../../store/slices/navChildSlice';
+import { removeUlChild } from '../../store/slices/ulChildSlice';
+import { removeOlChild } from '../../store/slices/olChildSlice';
+import { removeDlChild } from '../../store/slices/dlChildSlice';
+import { removeFieldSetChild } from '../../store/slices/fieldsetChildSlice';
+import { removeFormChild } from '../../store/slices/formChildSlice';
+import { removeTableChild } from '../../store/slices/tableChildSlice';
+import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
+import { removeFigureChild } from '../../store/slices/figureChildSlice';
 
 
 interface SpanComponentProps {
     childIndex: number;
-    parentID: string
+    parentID: string;
+    depth: number;
+    maxDepth?: number;
 }
 
 
-const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID }) => {
+const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
     const dispatch = useDispatch();
-    const droppableSpanid = `droppableSpan-${childIndex}`;
+    const droppableSpanid = `droppableSpan-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setNodeSpan } = useDroppable({
         id: droppableSpanid,
@@ -32,9 +58,7 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID }) =
 
     let currentContextMenu: HTMLDivElement | null = null;
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({
-        border: '2px solid blue',
-    });
+    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({});
     const styleOptions = useMemo(() => [
         { label: 'Border', type: 'text', name: 'border', value: baseSectionStyles.border ? String(baseSectionStyles.border) : '' },
         { label: 'Height', type: 'text', name: 'height', value: baseSectionStyles.height ? String(baseSectionStyles.height) : '' },
@@ -64,8 +88,10 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID }) =
 
 
     const combinedSpanStyles = {
-        ...baseSectionStyles,
+        height: "10vh",
+        border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
+        ...baseSectionStyles,
     };
 
 
@@ -87,10 +113,42 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID }) =
             removeButton.className = 'button';
             removeButton.addEventListener('click', () => {
                 if (parentID === 'droppable') {
-                    dispatch(removeComponentName(childIndex))
-                } else {
-                    dispatch(removeDivChild({ divId: parentID, componentIndex: childIndex }));
-
+                    dispatch(removeComponentName(childIndex));
+                }
+                else if (parentID.startsWith('droppableDiv-')) {
+                    dispatch(removeDivChild({ DivId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableSpan-')) {
+                    dispatch(removeSpanChild({ SpanId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppablesection-')) {
+                    dispatch(removeSectionChild({ SectionId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableHeader-')) {
+                    dispatch(removeHeaderChild({ HeaderId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFooter-')) {
+                    dispatch(removeFooterChild({ FooterId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableMain-')) {
+                    dispatch(removeMainChild({ MainId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableArticle-')) {
+                    dispatch(removeArticleChild({ ArticleId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableAside-')) {
+                    dispatch(removeAsideChild({ AsideId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableNav-')) {
+                    dispatch(removeNavChild({ NavId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableUl-')) {
+                    dispatch(removeUlChild({ UlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableOl-')) {
+                    dispatch(removeOlChild({ OlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableDl-')) {
+                    dispatch(removeDlChild({ DlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFieldSet-')) {
+                    dispatch(removeFieldSetChild({ FieldSetId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableForm-')) {
+                    dispatch(removeFormChild({ FormId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableTable-')) {
+                    dispatch(removeTableChild({ TableId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableIFrame-')) {
+                    dispatch(removeIFrameChild({ IFrameId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFigure-')) {
+                    dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
                 currentContextMenu = null;
@@ -213,46 +271,61 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID }) =
 
     // const spanChildren = useSelector((state: RootState) => state.spanChild[droppableSpanid] || []);
     const selectSpanChildren = createSelector(
-        [(state: RootState) => state.divChild, (_, droppableDivid: string) => droppableDivid],
-        (divChild, droppableDivid) => divChild[droppableDivid] || []
+        [(state: RootState) => state.spanChild, (_, droppableSpanid: string) => droppableSpanid],
+        (spanChild, droppableSpanid) => spanChild[droppableSpanid] || []
     );
     const spanChildren = useSelector((state: RootState) => selectSpanChildren(state, droppableSpanid));
     const renderComponent = (name: string, index: number) => {
+        if (depth >= maxDepth) {
+            return (
+                <div key={`${droppableSpanid}-${index}`} style={{ padding: '10px', border: '1px dashed red' }}>
+                    Max nesting depth reached
+                </div>
+            );
+        }
         switch (name) {
-            // case 'div':
-            //     return <DivComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'span':
-            //     return <SpanComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'section':
-            //     return <SectionComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'header':
-            //     return <HeaderComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'footer':
-            //     return <FooterComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'main':
-            //     return <MainComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'article':
-            //     return <ArticleComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'aside':
-            //     return <AsideComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'nav':
-            //     return <NavComponent key={index} childIndex={index} parentID={droppableSpanid} />;
-            // case 'ul':
-            //   return <UlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'ol':
-            //   return <OlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'dl':
-            //   return <DlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'fieldset':
-            //   return <FieldSetComponent key={divIndex} divIndex={divIndex} />;
-            // case 'form':
-            //   return <FormComponent key={divIndex} divIndex={divIndex} />;
-            // case 'table':
-            //   return <TableComponent key={divIndex} divIndex={divIndex} />;
-            // case 'iframe':
-            //   return <IFrameComponent key={divIndex} divIndex={divIndex} />;
-            // case 'figure':
-            //   return <FigureComponent key={divIndex} divIndex={divIndex} />;
+            case 'div':
+                return <DivComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'span':
+                return (
+                    <SpanComponent
+                        key={`${droppableSpanid}-${index}`}
+                        childIndex={index}
+                        parentID={droppableSpanid}
+                        depth={depth + 1}
+                        maxDepth={maxDepth}
+                    />
+                );
+            case 'section':
+                return <SectionComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'header':
+                return <HeaderComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'footer':
+                return <FooterComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'main':
+                return <MainComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'article':
+                return <ArticleComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'aside':
+                return <AsideComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'nav':
+                return <NavComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'ul':
+                return <UlComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'ol':
+                return <OlComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'dl':
+                return <DlComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'fieldset':
+                return <FieldSetComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'form':
+                return <FormComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'table':
+                return <TableComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'iframe':
+                return <IFrameComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+            case 'figure':
+                return <FigureComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary
@@ -260,8 +333,7 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID }) =
     };
 
     return (
-        <span ref={setNodeSpan} className={`span-component-${childIndex}`} style={combinedSpanStyles} onContextMenu={openContextMenu}>
-            {`Span: Child index: ${childIndex} \n parentID=${parentID}`}
+        <span title='Span' ref={setNodeSpan} className={`span-component-${childIndex}`} style={combinedSpanStyles} onContextMenu={openContextMenu}>
             {spanChildren.map((name, index) => renderComponent(name, index))}
 
         </span>

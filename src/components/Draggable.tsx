@@ -1,14 +1,16 @@
+
+
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 
 interface DraggableProps {
-    id: string;
+    id: number;
     content: string;
 }
 
 const Draggable: React.FC<DraggableProps> = ({ id, content }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
-        id,
+        id: id.toString(),
     });
 
     const style: React.CSSProperties = {
@@ -16,16 +18,19 @@ const Draggable: React.FC<DraggableProps> = ({ id, content }) => {
         cursor: 'move',
         padding: "0.5rem",
         borderBottom: "1px solid #fff",
-        // listStyle: "none",
         backgroundColor: "#1e8791",
-        width: "10rem"
-
+        width: "10vw",
     };
 
     return (
-        <p ref={setNodeRef} style={style} {...listeners} {...attributes}>
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...listeners}
+            {...attributes}
+        >
             {content}
-        </p>
+        </div>
     );
 };
 

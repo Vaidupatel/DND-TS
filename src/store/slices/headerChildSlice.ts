@@ -21,7 +21,7 @@ const headerChildSlice = createSlice({
         removeHeaderChild: (state, action: PayloadAction<{ HeaderId: string, componentIndex: number }>) => {
             const { HeaderId, componentIndex } = action.payload;
             if (state[HeaderId]) {
-                state[HeaderId].splice(componentIndex, 1);
+                delete state[HeaderId][componentIndex];
             }
         },
         clearHeaderChildren: (state, action: PayloadAction<{ HeaderId: string }>) => {
@@ -30,9 +30,12 @@ const headerChildSlice = createSlice({
                 state[HeaderId] = [];
             }
         },
+        setInitialHeaderChild: () => {
+            return initialState
+        }
     },
 });
 
-export const { addHeaderChild, removeHeaderChild, clearHeaderChildren } = headerChildSlice.actions;
+export const { addHeaderChild, removeHeaderChild, clearHeaderChildren, setInitialHeaderChild } = headerChildSlice.actions;
 
 export default headerChildSlice.reducer;

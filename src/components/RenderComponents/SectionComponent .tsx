@@ -1,36 +1,60 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDroppable } from '@dnd-kit/core';
-import { removeDivChild } from '../../store/divChildListSlice';
-import { removeComponentName } from '../../store/componentNamesSlice';
+import { removeDivChild } from '../../store/slices/divChildListSlice';
+import { removeComponentName } from '../../store/slices/componentNamesSlice';
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../store/store';
+import { removeSpanChild } from '../../store/slices/spanChildSlice';
+import { removeSectionChild } from '../../store/slices/sectionChildSlice';
+import { removeHeaderChild } from '../../store/slices/headerChildSlice';
+import { removeFooterChild } from '../../store/slices/footerChildSlice';
+import { removeMainChild } from '../../store/slices/mainChildSlice';
+import { removeArticleChild } from '../../store/slices/articleChildSlice';
+import { removeAsideChild } from '../../store/slices/asideChildSlice';
+import { removeNavChild } from '../../store/slices/navChildSlice';
+import { removeUlChild } from '../../store/slices/ulChildSlice';
+import { removeOlChild } from '../../store/slices/olChildSlice';
+import { removeDlChild } from '../../store/slices/dlChildSlice';
+import { removeFieldSetChild } from '../../store/slices/fieldsetChildSlice';
+import { removeFormChild } from '../../store/slices/formChildSlice';
+import { removeTableChild } from '../../store/slices/tableChildSlice';
+import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
+import { removeFigureChild } from '../../store/slices/figureChildSlice';
 import DivComponent from './DivComponent';
 import SpanComponent from './SpanComponent ';
 import HeaderComponent from './HeaderComponent ';
 import FooterComponent from './FooterComponent ';
 import MainComponent from './MainComponent ';
-import ArticleComponent from './ArticaleComponent ';
 import AsideComponent from './AsideComponent ';
 import NavComponent from './NavComponent ';
+import ArticleComponent from './ArticleComponent';
+import UlComponent from './UlComponent ';
+import OlComponent from './OlComponent ';
+import DlComponent from './DlComponent ';
+import FieldSetComponent from './FieldSetComponent ';
+import FormComponent from './FormComponent ';
+import TableComponent from './TableComponent ';
+import IFrameComponent from './IFrameComponent ';
+import FigureComponent from './FigureComponent ';
 
 interface SectionComponentProps {
     childIndex: number;
-    parentID: string
+    parentID: string;
+    depth: number;
+    maxDepth?: number;
 }
 
-const SectionComponent: React.FC<SectionComponentProps> = ({ childIndex, parentID }) => {
+const SectionComponent: React.FC<SectionComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
     const dispatch = useDispatch();
-    const droppableSectionid = `droppableSection-${childIndex}`;
+    const droppableSectionid = `droppableSection-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setNodeSection } = useDroppable({
         id: droppableSectionid,
     });
     let currentContextMenu: HTMLDivElement | null = null;
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({
-        border: '2px solid blue',
-    });
+    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({});
     const styleOptions = useMemo(() => [
         { label: 'Border', type: 'text', name: 'border', value: baseSectionStyles.border ? String(baseSectionStyles.border) : '' },
         { label: 'Height', type: 'text', name: 'height', value: baseSectionStyles.height ? String(baseSectionStyles.height) : '' },
@@ -60,8 +84,10 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ childIndex, parentI
 
 
     const combinedsectionStyles = {
-        ...baseSectionStyles,
+        height: "10vh",
+        border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
+        ...baseSectionStyles,
     };
 
 
@@ -83,10 +109,42 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ childIndex, parentI
             removeButton.className = 'button';
             removeButton.addEventListener('click', () => {
                 if (parentID === 'droppable') {
-                    dispatch(removeComponentName(childIndex))
-                } else {
-                    dispatch(removeDivChild({ divId: parentID, componentIndex: childIndex }));
-
+                    dispatch(removeComponentName(childIndex));
+                }
+                else if (parentID.startsWith('droppableDiv-')) {
+                    dispatch(removeDivChild({ DivId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableSpan-')) {
+                    dispatch(removeSpanChild({ SpanId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppablesection-')) {
+                    dispatch(removeSectionChild({ SectionId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableHeader-')) {
+                    dispatch(removeHeaderChild({ HeaderId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFooter-')) {
+                    dispatch(removeFooterChild({ FooterId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableMain-')) {
+                    dispatch(removeMainChild({ MainId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableArticle-')) {
+                    dispatch(removeArticleChild({ ArticleId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableAside-')) {
+                    dispatch(removeAsideChild({ AsideId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableNav-')) {
+                    dispatch(removeNavChild({ NavId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableUl-')) {
+                    dispatch(removeUlChild({ UlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableOl-')) {
+                    dispatch(removeOlChild({ OlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableDl-')) {
+                    dispatch(removeDlChild({ DlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFieldSet-')) {
+                    dispatch(removeFieldSetChild({ FieldSetId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableForm-')) {
+                    dispatch(removeFormChild({ FormId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableTable-')) {
+                    dispatch(removeTableChild({ TableId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableIFrame-')) {
+                    dispatch(removeIFrameChild({ IFrameId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFigure-')) {
+                    dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
                 currentContextMenu = null;
@@ -217,41 +275,56 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ childIndex, parentI
 
 
     const renderComponent = (name: string, index: number) => {
+        if (depth >= maxDepth) {
+            return (
+                <div key={`${droppableSectionid}-${index}`} style={{ padding: '10px', border: '1px dashed red' }}>
+                    Max nesting depth reached
+                </div>
+            );
+        }
         switch (name) {
             case 'div':
-                return <DivComponent key={index} childIndex={index} parentID={droppableSectionid} />;
+                return <DivComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
             case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableSectionid} />;
-            // case 'section':
-            //     return <SectionComponent key={index} childIndex={index} parentID={droppableSectionid} />;
+                return <SpanComponent key={index} childIndex={index} parentID={droppableSectionid} depth={depth + 1} />;
+            case 'section':
+                return (
+                    <SectionComponent
+                        key={`${droppableSectionid}-${index}`}
+                        childIndex={index}
+                        parentID={droppableSectionid}
+                        depth={depth + 1}
+                        maxDepth={maxDepth}
+                    />
+                );
             case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableSectionid} />;
+                return <HeaderComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
             case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableSectionid} />;
+                return <FooterComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
             case 'main':
-                return <MainComponent key={index} childIndex={index} parentID={droppableSectionid} />;
+                return <MainComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
             case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableSectionid} />;
+                return <ArticleComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
             case 'aside':
-                return <AsideComponent key={index} childIndex={index} parentID={droppableSectionid} />;
+                return <AsideComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
             case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableSectionid} />;
-            // case 'ul':
-            //   return <UlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'ol':
-            //   return <OlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'dl':
-            //   return <DlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'fieldset':
-            //   return <FieldSetComponent key={divIndex} divIndex={divIndex} />;
-            // case 'form':
-            //   return <FormComponent key={divIndex} divIndex={divIndex} />;
-            // case 'table':
-            //   return <TableComponent key={divIndex} divIndex={divIndex} />;
-            // case 'iframe':
-            //   return <IFrameComponent key={divIndex} divIndex={divIndex} />;
-            // case 'figure':
-            //   return <FigureComponent key={divIndex} divIndex={divIndex} />;
+                return <NavComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'ul':
+                return <UlComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'ol':
+                return <OlComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'dl':
+                return <DlComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'fieldset':
+                return <FieldSetComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'form':
+                return <FormComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'table':
+                return <TableComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'iframe':
+                return <IFrameComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
+            case 'figure':
+                return <FigureComponent key={index} childIndex={index} depth={depth + 1} parentID={droppableSectionid} />;
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary
@@ -261,15 +334,15 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ childIndex, parentI
 
     return (
         <section
+            title='Section'
             ref={setNodeSection}
             className={`section-component-${childIndex}`}
             style={combinedsectionStyles}
             onContextMenu={openContextMenu}
         >
-            {`Section:\n droppable Child index: ${childIndex}\n   parentID=${parentID}`}
             {sectionChildren.map((name: string, index: number) => renderComponent(name, index))}
 
-        </section > 
+        </section >
     );
 };
 

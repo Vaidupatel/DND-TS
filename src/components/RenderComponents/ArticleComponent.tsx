@@ -1,7 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import './ContextMenu.css';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
+import { useDroppable } from '@dnd-kit/core';
+import { RootState } from '../../store/store';
 import { removeDivChild } from '../../store/slices/divChildListSlice';
+import { createSelector } from '@reduxjs/toolkit';
 import { removeSpanChild } from '../../store/slices/spanChildSlice';
 import { removeSectionChild } from '../../store/slices/sectionChildSlice';
 import { removeHeaderChild } from '../../store/slices/headerChildSlice';
@@ -18,18 +24,14 @@ import { removeFormChild } from '../../store/slices/formChildSlice';
 import { removeTableChild } from '../../store/slices/tableChildSlice';
 import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
-
-import { useDroppable } from '@dnd-kit/core';
-import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../../store/store';
 import DivComponent from './DivComponent';
 import SpanComponent from './SpanComponent ';
 import SectionComponent from './SectionComponent ';
 import HeaderComponent from './HeaderComponent ';
 import FooterComponent from './FooterComponent ';
+import MainComponent from './MainComponent ';
 import AsideComponent from './AsideComponent ';
 import NavComponent from './NavComponent ';
-import ArticleComponent from './ArticleComponent';
 import UlComponent from './UlComponent ';
 import OlComponent from './OlComponent ';
 import DlComponent from './DlComponent ';
@@ -39,60 +41,64 @@ import TableComponent from './TableComponent ';
 import IFrameComponent from './IFrameComponent ';
 import FigureComponent from './FigureComponent ';
 
-interface MainComponentProps {
+
+
+interface ArticleComponentProps {
     childIndex: number;
     parentID: string;
     depth: number;
-    maxDepth?: number
+    maxDepth?: number;
 }
 
-const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
-    const dispatch = useDispatch();
-    const droppableMainid = `droppableMain-${parentID}-${childIndex}`;
+let currentContextMenu: HTMLDivElement | null = null;
 
-    const { isOver, setNodeRef: setNodeMain } = useDroppable({
-        id: droppableMainid,
+const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
+
+    const droppableArticleid = `droppableArticle-${parentID}-${childIndex}`;
+    const { isOver, setNodeRef: setArticleNodeRef } = useDroppable({
+        id: droppableArticleid,
     });
-    let currentContextMenu: HTMLDivElement | null = null;
+
+    const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
+
+    const dispatch = useDispatch();
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({});
-    const styleOptions = useMemo(() => [
-        { label: 'Border', type: 'text', name: 'border', value: baseSectionStyles.border ? String(baseSectionStyles.border) : '' },
-        { label: 'Height', type: 'text', name: 'height', value: baseSectionStyles.height ? String(baseSectionStyles.height) : '' },
-        { label: 'Width', type: 'text', name: 'width', value: baseSectionStyles.width ? String(baseSectionStyles.width) : '' },
-        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseSectionStyles.backgroundColor ? String(baseSectionStyles.backgroundColor) : '' },
-        { label: 'Color', type: 'text', name: 'color', value: baseSectionStyles.color ? String(baseSectionStyles.color) : '' },
-        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseSectionStyles.fontSize ? String(baseSectionStyles.fontSize) : '' },
-        { label: 'Padding', type: 'text', name: 'padding', value: baseSectionStyles.padding ? String(baseSectionStyles.padding) : '' },
-        { label: 'Padding Left', type: 'text', name: 'paddingLeft', value: baseSectionStyles.paddingLeft ? String(baseSectionStyles.paddingLeft) : '' },
-        { label: 'Padding Top', type: 'text', name: 'paddingTop', value: baseSectionStyles.paddingTop ? String(baseSectionStyles.paddingTop) : '' },
-        { label: 'Padding Right', type: 'text', name: 'paddingRight', value: baseSectionStyles.paddingRight ? String(baseSectionStyles.paddingRight) : '' },
-        { label: 'Padding Bottom', type: 'text', name: 'paddingBottom', value: baseSectionStyles.paddingBottom ? String(baseSectionStyles.paddingBottom) : '' },
-        { label: 'Margin', type: 'text', name: 'margin', value: baseSectionStyles.margin ? String(baseSectionStyles.margin) : '' },
-        { label: 'Margin Left', type: 'text', name: 'marginLeft', value: baseSectionStyles.marginLeft ? String(baseSectionStyles.marginLeft) : '' },
-        { label: 'Margin Top', type: 'text', name: 'marginTop', value: baseSectionStyles.marginTop ? String(baseSectionStyles.marginTop) : '' },
-        { label: 'Margin Right', type: 'text', name: 'marginRight', value: baseSectionStyles.marginRight ? String(baseSectionStyles.marginRight) : '' },
-        { label: 'Margin Bottom', type: 'text', name: 'marginBottom', value: baseSectionStyles.marginBottom ? String(baseSectionStyles.marginBottom) : '' },
-        { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseSectionStyles.boxShadow ? String(baseSectionStyles.boxShadow) : '' },
-        { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseSectionStyles.borderRadius ? String(baseSectionStyles.borderRadius) : '' },
-        { label: 'Text Align', type: 'text', name: 'textAlign', value: baseSectionStyles.textAlign ? String(baseSectionStyles.textAlign) : '' },
-        { label: 'Display', type: 'text', name: 'display', value: baseSectionStyles.display ? String(baseSectionStyles.display) : '' },
-        { label: 'Flex Direction', type: 'text', name: 'flexDirection', value: baseSectionStyles.flexDirection ? String(baseSectionStyles.flexDirection) : '' },
-        { label: 'Justify Content', type: 'text', name: 'justifyContent', value: baseSectionStyles.justifyContent ? String(baseSectionStyles.justifyContent) : '' },
-        { label: 'Align Items', type: 'text', name: 'alignItems', value: baseSectionStyles.alignItems ? String(baseSectionStyles.alignItems) : '' },
-        { label: 'Gap', type: 'text', name: 'gap', value: baseSectionStyles.gap ? String(baseSectionStyles.gap) : '' },
-    ], [baseSectionStyles]);
 
-
-    const combinedMainStyles = {
+    const combinedStyles = {
         height: "10vh",
         border: '1px dashed red',
-        backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
-        ...baseSectionStyles,
+        backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
+        ...baseStyles,
     };
 
+    const styleOptions = useMemo(() => [
+        { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
+        { label: 'Height', type: 'text', name: 'height', value: baseStyles.height ? String(baseStyles.height) : '' },
+        { label: 'Width', type: 'text', name: 'width', value: baseStyles.width ? String(baseStyles.width) : '' },
+        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '' },
+        { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '' },
+        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
+        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
+        { label: 'Padding Left', type: 'text', name: 'paddingLeft', value: baseStyles.paddingLeft ? String(baseStyles.paddingLeft) : '' },
+        { label: 'Padding Top', type: 'text', name: 'paddingTop', value: baseStyles.paddingTop ? String(baseStyles.paddingTop) : '' },
+        { label: 'Padding Right', type: 'text', name: 'paddingRight', value: baseStyles.paddingRight ? String(baseStyles.paddingRight) : '' },
+        { label: 'Padding Bottom', type: 'text', name: 'paddingBottom', value: baseStyles.paddingBottom ? String(baseStyles.paddingBottom) : '' },
+        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
+        { label: 'Margin Left', type: 'text', name: 'marginLeft', value: baseStyles.marginLeft ? String(baseStyles.marginLeft) : '' },
+        { label: 'Margin Top', type: 'text', name: 'marginTop', value: baseStyles.marginTop ? String(baseStyles.marginTop) : '' },
+        { label: 'Margin Right', type: 'text', name: 'marginRight', value: baseStyles.marginRight ? String(baseStyles.marginRight) : '' },
+        { label: 'Margin Bottom', type: 'text', name: 'marginBottom', value: baseStyles.marginBottom ? String(baseStyles.marginBottom) : '' },
+        { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseStyles.boxShadow ? String(baseStyles.boxShadow) : '' },
+        { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseStyles.borderRadius ? String(baseStyles.borderRadius) : '' },
+        { label: 'Text Align', type: 'text', name: 'textAlign', value: baseStyles.textAlign ? String(baseStyles.textAlign) : '' },
+        { label: 'Display', type: 'text', name: 'display', value: baseStyles.display ? String(baseStyles.display) : '' },
+        { label: 'Flex Direction', type: 'text', name: 'flexDirection', value: baseStyles.flexDirection ? String(baseStyles.flexDirection) : '' },
+        { label: 'Justify Content', type: 'text', name: 'justifyContent', value: baseStyles.justifyContent ? String(baseStyles.justifyContent) : '' },
+        { label: 'Align Items', type: 'text', name: 'alignItems', value: baseStyles.alignItems ? String(baseStyles.alignItems) : '' },
+        { label: 'Gap', type: 'text', name: 'gap', value: baseStyles.gap ? String(baseStyles.gap) : '' },
+    ], [baseStyles]);
 
-    const openContextMenu = (event: React.MouseEvent<HTMLSpanElement>) => {
+    const openContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.target === event.currentTarget) {
             event.preventDefault();
             event.stopPropagation();
@@ -179,7 +185,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
                 input.addEventListener('input', (e) => {
                     const target = e.target as HTMLInputElement;
                     const newValue = target.value;
-                    setbaseSectionStyles((prevStyles) => ({
+                    setBaseStyles((prevStyles) => ({
                         ...prevStyles,
                         [name]: newValue
                     }));
@@ -217,7 +223,6 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
             document.addEventListener('click', handleClickOutside);
         }
     }
-
     useEffect(() => {
         if (currentContextMenu) {
             const styleForm = currentContextMenu.querySelector('.style-form');
@@ -251,7 +256,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
                         input.addEventListener('input', (e) => {
                             const target = e.target as HTMLInputElement;
                             const newValue = target.value;
-                            setbaseSectionStyles((prevStyles) => ({
+                            setBaseStyles((prevStyles) => ({
                                 ...prevStyles,
                                 [option.name]: newValue
                             }));
@@ -265,80 +270,84 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
         }
     }, [searchTerm]);
 
-    const selectmainChildren = createSelector(
-        [(state: RootState) => state.mainChild, (_, droppableMainid: string) => droppableMainid],
-        (mainChild, droppableMainid) => mainChild[droppableMainid] || []
+
+
+    const selectArticleChildren = createSelector(
+        [(state: RootState) => state.articleChild, (_, droppableArticleid: string) => droppableArticleid],
+        (articleChild, droppableArticleid) => articleChild[droppableArticleid] || []
     );
-    const mainChildren = useSelector((state: RootState) => selectmainChildren(state, droppableMainid));
+    const articleChildren = useSelector((state: RootState) => selectArticleChildren(state, droppableArticleid));
+
+
+
+
     const renderComponent = (name: string, index: number) => {
         if (depth >= maxDepth) {
             return (
-                <div key={`${droppableMainid}-${index}`} style={{ padding: '10px', border: '1px dashed red' }}>
+                <div key={`${droppableArticleid}-${index}`} style={{ padding: '10px', border: '1px dashed red' }}>
                     Max nesting depth reached
                 </div>
             );
         }
         switch (name) {
             case 'div':
-                return <DivComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
-            case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
-            case 'section':
-                return <SectionComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
-            case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
-            case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
-            case 'main':
                 return (
-                    <MainComponent
-                        key={`${droppableMainid}-${index}`}
+                    <DivComponent
+                        key={`${droppableArticleid}-${index}`}
                         childIndex={index}
-                        parentID={droppableMainid}
+                        parentID={droppableArticleid}
                         depth={depth + 1}
                         maxDepth={maxDepth}
                     />
                 );
+            case 'span':
+                return <SpanComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+            case 'section':
+                return <SectionComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} maxDepth={maxDepth} />;
+            case 'header':
+                return <HeaderComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+            case 'footer':
+                return <FooterComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+            case 'main':
+                return <MainComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <ArticleComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'aside':
-                return <AsideComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <AsideComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <NavComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <UlComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'ol':
-                return <OlComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <OlComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'dl':
-                return <DlComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <DlComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'fieldset':
-                return <FieldSetComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <FieldSetComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'form':
-                return <FormComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <FormComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'table':
-                return <TableComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <TableComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'iframe':
-                return <IFrameComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <IFrameComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             case 'figure':
-                return <FigureComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <FigureComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary
         }
     };
 
-    return (
-        <main
-            title='Main'
-            ref={setNodeMain}
-            className={`main-component-${childIndex}`}
-            style={combinedMainStyles}
-            onContextMenu={openContextMenu}
-        >
-            {mainChildren.map((name: string, index: number) => renderComponent(name, index))}
 
-        </main>
+    return (
+        <div title='Article' ref={setArticleNodeRef} style={combinedStyles} onContextMenu={openContextMenu}>
+
+            {articleChildren.map((name: string, index: number) => renderComponent(name, index))}
+
+
+
+        </div>
     );
 };
 
-export default MainComponent;
+export default ArticleComponent;

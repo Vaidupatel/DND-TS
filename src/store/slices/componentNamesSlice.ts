@@ -13,9 +13,7 @@ const componentNamesSlice = createSlice({
   initialState,
   reducers: {
     addComponentName: (state, action: PayloadAction<string>) => {
-      // const { index, name } = action.payload;
-      // state.names[index] = name;
-      const newIndex = Object.keys(state.names).length + 1; // Generate a new index
+      const newIndex = Object.keys(state.names).length + 1;
       state.names[newIndex] = action.payload;
     },
     removeComponentName: (state, action: PayloadAction<number>) => {

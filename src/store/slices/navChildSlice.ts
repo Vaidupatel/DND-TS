@@ -21,7 +21,7 @@ const navChildSlice = createSlice({
         removeNavChild: (state, action: PayloadAction<{ NavId: string, componentIndex: number }>) => {
             const { NavId, componentIndex } = action.payload;
             if (state[NavId]) {
-                state[NavId].splice(componentIndex, 1);
+                delete state[NavId][componentIndex];
             }
         },
         clearNavChildren: (state, action: PayloadAction<{ NavId: string }>) => {
@@ -30,9 +30,12 @@ const navChildSlice = createSlice({
                 state[NavId] = [];
             }
         },
+        setInitialNavChild: () => {
+            return initialState
+        }
     },
 });
 
-export const { addNavChild, removeNavChild, clearNavChildren } = navChildSlice.actions;
+export const { addNavChild, removeNavChild, clearNavChildren, setInitialNavChild } = navChildSlice.actions;
 
 export default navChildSlice.reducer;

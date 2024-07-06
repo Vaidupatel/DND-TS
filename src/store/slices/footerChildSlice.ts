@@ -20,8 +20,9 @@ const footerChildSlice = createSlice({
         },
         removeFooterChild: (state, action: PayloadAction<{ FooterId: string, componentIndex: number }>) => {
             const { FooterId, componentIndex } = action.payload;
+
             if (state[FooterId]) {
-                state[FooterId].splice(componentIndex, 1);
+                delete state[FooterId][componentIndex];
             }
         },
         clearFooterChildren: (state, action: PayloadAction<{ FooterId: string }>) => {
@@ -30,9 +31,12 @@ const footerChildSlice = createSlice({
                 state[FooterId] = [];
             }
         },
+        setInitialFooterChild: () => {
+            return initialState
+        }
     },
 });
 
-export const { addFooterChild, removeFooterChild, clearFooterChildren } = footerChildSlice.actions;
+export const { addFooterChild, removeFooterChild, clearFooterChildren, setInitialFooterChild } = footerChildSlice.actions;
 
 export default footerChildSlice.reducer;

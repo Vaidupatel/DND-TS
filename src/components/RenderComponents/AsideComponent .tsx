@@ -1,7 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { removeComponentName } from '../../store/componentNamesSlice';
-import { removeDivChild } from '../../store/divChildListSlice';
+import { removeComponentName } from '../../store/slices/componentNamesSlice';
+import { removeDivChild } from '../../store/slices/divChildListSlice';
+import { removeSpanChild } from '../../store/slices/spanChildSlice';
+import { removeSectionChild } from '../../store/slices/sectionChildSlice';
+import { removeHeaderChild } from '../../store/slices/headerChildSlice';
+import { removeFooterChild } from '../../store/slices/footerChildSlice';
+import { removeMainChild } from '../../store/slices/mainChildSlice';
+import { removeArticleChild } from '../../store/slices/articleChildSlice';
+import { removeAsideChild } from '../../store/slices/asideChildSlice';
+import { removeNavChild } from '../../store/slices/navChildSlice';
+import { removeUlChild } from '../../store/slices/ulChildSlice';
+import { removeOlChild } from '../../store/slices/olChildSlice';
+import { removeDlChild } from '../../store/slices/dlChildSlice';
+import { removeFieldSetChild } from '../../store/slices/fieldsetChildSlice';
+import { removeFormChild } from '../../store/slices/formChildSlice';
+import { removeTableChild } from '../../store/slices/tableChildSlice';
+import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
+import { removeFigureChild } from '../../store/slices/figureChildSlice';
 import { useDroppable } from '@dnd-kit/core';
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../store/store';
@@ -11,26 +27,34 @@ import SectionComponent from './SectionComponent ';
 import HeaderComponent from './HeaderComponent ';
 import FooterComponent from './FooterComponent ';
 import MainComponent from './MainComponent ';
-import ArticleComponent from './ArticaleComponent ';
 import NavComponent from './NavComponent ';
+import ArticleComponent from './ArticleComponent';
+import UlComponent from './UlComponent ';
+import OlComponent from './OlComponent ';
+import DlComponent from './DlComponent ';
+import FieldSetComponent from './FieldSetComponent ';
+import FormComponent from './FormComponent ';
+import TableComponent from './TableComponent ';
+import IFrameComponent from './IFrameComponent ';
+import FigureComponent from './FigureComponent ';
 
 interface AsideComponentProps {
     childIndex: number;
     parentID: string;
+    depth: number;
+    maxDepth?: number
 }
 
-const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID }) => {
+const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
     const dispatch = useDispatch();
-    const droppableAsideid = `droppableAside-${childIndex}`;
+    const droppableAsideid = `droppableAside-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setNodeAside } = useDroppable({
         id: droppableAsideid,
     });
     let currentContextMenu: HTMLHeadElement | null = null;
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({
-        border: '2px solid blue',
-    });
+    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({});
     const styleOptions = useMemo(() => [
         { label: 'Border', type: 'text', name: 'border', value: baseSectionStyles.border ? String(baseSectionStyles.border) : '' },
         { label: 'Height', type: 'text', name: 'height', value: baseSectionStyles.height ? String(baseSectionStyles.height) : '' },
@@ -60,8 +84,10 @@ const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID })
 
 
     const combinedAsideStyles = {
-        ...baseSectionStyles,
+        height: "10vh",
+        border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
+        ...baseSectionStyles,
     };
 
 
@@ -83,10 +109,42 @@ const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID })
             removeButton.className = 'button';
             removeButton.addEventListener('click', () => {
                 if (parentID === 'droppable') {
-                    dispatch(removeComponentName(childIndex))
-                } else {
-                    dispatch(removeDivChild({ divId: parentID, componentIndex: childIndex }));
-
+                    dispatch(removeComponentName(childIndex));
+                }
+                else if (parentID.startsWith('droppableDiv-')) {
+                    dispatch(removeDivChild({ DivId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableSpan-')) {
+                    dispatch(removeSpanChild({ SpanId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppablesection-')) {
+                    dispatch(removeSectionChild({ SectionId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableHeader-')) {
+                    dispatch(removeHeaderChild({ HeaderId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFooter-')) {
+                    dispatch(removeFooterChild({ FooterId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableMain-')) {
+                    dispatch(removeMainChild({ MainId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableArticle-')) {
+                    dispatch(removeArticleChild({ ArticleId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableAside-')) {
+                    dispatch(removeAsideChild({ AsideId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableNav-')) {
+                    dispatch(removeNavChild({ NavId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableUl-')) {
+                    dispatch(removeUlChild({ UlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableOl-')) {
+                    dispatch(removeOlChild({ OlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableDl-')) {
+                    dispatch(removeDlChild({ DlId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFieldSet-')) {
+                    dispatch(removeFieldSetChild({ FieldSetId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableForm-')) {
+                    dispatch(removeFormChild({ FormId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableTable-')) {
+                    dispatch(removeTableChild({ TableId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableIFrame-')) {
+                    dispatch(removeIFrameChild({ IFrameId: parentID, componentIndex: childIndex }));
+                } else if (parentID.startsWith('droppableFigure-')) {
+                    dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
                 currentContextMenu = null;
@@ -212,41 +270,57 @@ const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID })
     );
     const asideChildren = useSelector((state: RootState) => selectasideChildren(state, droppableAsideid));
     const renderComponent = (name: string, index: number) => {
+        if (depth >= maxDepth) {
+            return (
+                <div key={`${droppableAsideid}-${index}`} style={{ padding: "10px", border: "1px dashed red" }}>
+                    Max nesting depth reached
+                </div>
+            )
+        }
         switch (name) {
             case 'div':
-                return <DivComponent key={index} childIndex={index} parentID={droppableAsideid} />;
+                return <DivComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
             case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableAsideid} />;
+                return <SpanComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
             case 'section':
-                return <SectionComponent key={index} childIndex={index} parentID={droppableAsideid} />;
+                return <SectionComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
             case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableAsideid} />;
+                return <HeaderComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
             case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableAsideid} />;
+                return <FooterComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
             case 'main':
-                return <MainComponent key={index} childIndex={index} parentID={droppableAsideid} />;
+                return <MainComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
             case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableAsideid} />;
-            // case 'aside':
-            //     return <AsideComponent key={index} childIndex={index} parentID={droppableAsideid} />;
+                return <ArticleComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'aside':
+                return (
+                    <AsideComponent
+                        key={index}
+                        childIndex={index}
+                        parentID={droppableAsideid}
+                        depth={depth + 1}
+                        maxDepth={maxDepth}
+
+                    />
+                );
             case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableAsideid} />;
-            // case 'ul':
-            //   return <UlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'ol':
-            //   return <OlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'dl':
-            //   return <DlComponent key={divIndex} divIndex={divIndex} />;
-            // case 'fieldset':
-            //   return <FieldSetComponent key={divIndex} divIndex={divIndex} />;
-            // case 'form':
-            //   return <FormComponent key={divIndex} divIndex={divIndex} />;
-            // case 'table':
-            //   return <TableComponent key={divIndex} divIndex={divIndex} />;
-            // case 'iframe':
-            //   return <IFrameComponent key={divIndex} divIndex={divIndex} />;
-            // case 'figure':
-            //   return <FigureComponent key={divIndex} divIndex={divIndex} />;
+                return <NavComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'ul':
+                return <UlComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'ol':
+                return <OlComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'dl':
+                return <DlComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'fieldset':
+                return <FieldSetComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'form':
+                return <FormComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'table':
+                return <TableComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'iframe':
+                return <IFrameComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
+            case 'figure':
+                return <FigureComponent key={index} childIndex={index} parentID={droppableAsideid} depth={depth + 1} />;
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary
@@ -254,10 +328,9 @@ const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID })
     };
 
     return (
-        <aside ref={setNodeAside} className={`aside-component-${childIndex}`}
+        <aside title='Aside' ref={setNodeAside} className={`aside-component-${childIndex}`}
             style={combinedAsideStyles}
             onContextMenu={openContextMenu}>
-            {`Aside : \n  Child index: ${childIndex} \n parent id = ${parentID}`}
             {asideChildren.map((name: string, index: number) => renderComponent(name, index))}
 
         </aside>

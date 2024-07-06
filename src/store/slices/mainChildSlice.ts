@@ -21,7 +21,7 @@ const mainChildSlice = createSlice({
         removeMainChild: (state, action: PayloadAction<{ MainId: string, componentIndex: number }>) => {
             const { MainId, componentIndex } = action.payload;
             if (state[MainId]) {
-                state[MainId].splice(componentIndex, 1);
+                delete state[MainId][componentIndex];
             }
         },
         clearMainChildren: (state, action: PayloadAction<{ MainId: string }>) => {
@@ -30,9 +30,12 @@ const mainChildSlice = createSlice({
                 state[MainId] = [];
             }
         },
+        setInitialMainChild: () => {
+            return initialState
+        }
     },
 });
 
-export const { addMainChild, removeMainChild, clearMainChildren } = mainChildSlice.actions;
+export const { addMainChild, removeMainChild, clearMainChildren, setInitialMainChild } = mainChildSlice.actions;
 
 export default mainChildSlice.reducer;
