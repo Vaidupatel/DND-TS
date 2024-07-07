@@ -4,17 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useDroppable } from '@dnd-kit/core';
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../store/store';
-import DivComponent from './DivComponent';
-import SpanComponent from './SpanComponent ';
-import SectionComponent from './SectionComponent ';
-import HeaderComponent from './HeaderComponent ';
-import FooterComponent from './FooterComponent ';
-import MainComponent from './MainComponent ';
-import AsideComponent from './AsideComponent ';
-import NavComponent from './NavComponent ';
-import UlComponent from './UlComponent ';
-import DlComponent from './DlComponent ';
-import OlComponent from './OlComponent ';
 import { removeDivChild } from '../../store/slices/divChildListSlice';
 import { removeSpanChild } from '../../store/slices/spanChildSlice';
 import { removeSectionChild } from '../../store/slices/sectionChildSlice';
@@ -32,25 +21,30 @@ import { removeFormChild } from '../../store/slices/formChildSlice';
 import { removeTableChild } from '../../store/slices/tableChildSlice';
 import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
-import FieldSetComponent from './FieldSetComponent ';
-import ArticleComponent from './ArticleComponent';
-import TableComponent from './TableComponent ';
-import IFrameComponent from './IFrameComponent ';
-import FigureComponent from './FigureComponent ';
+
+import ButtonComponent from './ButtonComponent';
+import SelectComponent from './SelectComponent';
+import InputComponent from './InputComponent';
 
 interface FormComponentProps {
     childIndex: number;
     parentID: string;
     depth: number;
     maxDepth?: number;
+    draggedItemType: string | null;
 }
 let currentContextMenu: HTMLDivElement | null = null;
 
-const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
+const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, draggedItemType }) => {
     const droppableFormid = `droppableForm-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setFormNodeRef } = useDroppable({
         id: droppableFormid,
+        data: {
+            accepts: ["input", "button", "select", "textarea", "fieldset", "output", "progress", "object", "div", "ul", "ol", "section", "header", "footer", "article", "aside", "nav", "main"],
+            childIndex,
+            parentID,
+        },
     });
 
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
@@ -60,8 +54,13 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
 
     const combinedStyles = {
         height: "10vh",
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
+        cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ["input",
+            "button", "select", "textarea", "label", "fieldset", "output", "progress", "object", "div", "ul", "ol", "section", "header", "footer", "article", "aside", "nav", "main"].includes(draggedItemType))
+            ? 'default'
+            : 'not-allowed',
         ...baseStyles,
     };
 
@@ -92,7 +91,7 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
         { label: 'Gap', type: 'text', name: 'gap', value: baseStyles.gap ? String(baseStyles.gap) : '' },
     ], [baseStyles]);
 
-    const openContextMenu = (event: React.MouseEvent<HTMLFieldSetElement>) => {
+    const openContextMenu = (event: React.MouseEvent<HTMLFormElement>) => {
         if (event.target === event.currentTarget) {
             event.preventDefault();
             event.stopPropagation();
@@ -282,61 +281,29 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
             );
         }
         switch (name) {
-            case 'div':
+            case 'input':
                 return (
-                    <DivComponent
-                        key={`${droppableFormid}-${index}`}
-                        childIndex={index}
-                        parentID={droppableFormid}
-                        depth={depth + 1}
-                    />
+                    <InputComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />
                 );
-            case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'section':
-                return <SectionComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} maxDepth={maxDepth} />;
-            case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'main':
-                return <MainComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'aside':
-                return <AsideComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'ol':
-                return <OlComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'dl':
-                return <DlComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'fieldset':
-                return <FieldSetComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'form':
-                return <FormComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'table':
-                return <TableComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'iframe':
-                return <IFrameComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
-            case 'figure':
-                return <FigureComponent key={index} childIndex={index} parentID={droppableFormid} depth={depth + 1} />;
+            case 'button':
+                return <ButtonComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />;
+            case 'select':
+                return <SelectComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />;
+
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary
         }
     };
     return (
-        <fieldset
+        <form
             title='Form'
             style={combinedStyles}
             ref={setFormNodeRef}
             onContextMenu={openContextMenu}
         >
             {formChildren.map((name: string, index: number) => renderComponent(name, index))}
-        </fieldset>
+        </form>
     );
 };
 

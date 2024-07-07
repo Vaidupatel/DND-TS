@@ -21,36 +21,44 @@ import { removeFormChild } from '../../store/slices/formChildSlice';
 import { removeTableChild } from '../../store/slices/tableChildSlice';
 import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
-import DivComponent from './DivComponent';
-import SpanComponent from './SpanComponent ';
-import SectionComponent from './SectionComponent ';
-import HeaderComponent from './HeaderComponent ';
-import FooterComponent from './FooterComponent ';
-import MainComponent from './MainComponent ';
-import AsideComponent from './AsideComponent ';
-import NavComponent from './NavComponent ';
-import UlComponent from './UlComponent ';
-import OlComponent from './OlComponent ';
-import ArticleComponent from './ArticleComponent';
-import FieldSetComponent from './FieldSetComponent ';
-import FormComponent from './FormComponent ';
-import TableComponent from './TableComponent ';
-import IFrameComponent from './IFrameComponent ';
-import FigureComponent from './FigureComponent ';
+import DtComponent from './DtComponent';
+// import DivComponent from './DivComponent';
+// import SpanComponent from './SpanComponent ';
+// import SectionComponent from './SectionComponent ';
+// import HeaderComponent from './HeaderComponent ';
+// import FooterComponent from './FooterComponent ';
+// import MainComponent from './MainComponent ';
+// import AsideComponent from './AsideComponent ';
+// import NavComponent from './NavComponent ';
+// import UlComponent from './UlComponent ';
+// import OlComponent from './OlComponent ';
+// import ArticleComponent from './ArticleComponent';
+// import FieldSetComponent from './FieldSetComponent ';
+// import FormComponent from './FormComponent ';
+// import TableComponent from './TableComponent ';
+// import IFrameComponent from './IFrameComponent ';
+// import FigureComponent from './FigureComponent ';
 
 interface DlComponentProps {
   childIndex: number;
   parentID: string;
   depth: number;
   maxDepth?: number;
+  draggedItemType: string | null;
+
 }
 let currentContextMenu: HTMLDivElement | null = null;
 
-const DlComponent: React.FC<DlComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
+const DlComponent: React.FC<DlComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, draggedItemType }) => {
   const droppableDlid = `droppableDl-${parentID}-${childIndex}`;
 
   const { isOver, setNodeRef: setDlNodeRef } = useDroppable({
     id: droppableDlid,
+    data: {
+      accepts: ["dt"],
+      childIndex,
+      parentID,
+    },
   });
 
   const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
@@ -60,8 +68,12 @@ const DlComponent: React.FC<DlComponentProps> = ({ childIndex, parentID, depth, 
 
   const combinedStyles = {
     height: "10vh",
+
     border: '1px dashed red',
     backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
+    cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ['dt'].includes(draggedItemType))
+      ? 'default'
+      : 'not-allowed',
     ...baseStyles,
   };
 
@@ -282,48 +294,16 @@ const DlComponent: React.FC<DlComponentProps> = ({ childIndex, parentID, depth, 
       );
     }
     switch (name) {
-      case 'div':
+      case 'dt':
         return (
-          <DivComponent
+          <DtComponent
             key={`${droppableDlid}-${index}`}
             childIndex={index}
             parentID={droppableDlid}
             depth={depth + 1}
+            draggedItemType={draggedItemType}
           />
         );
-      case 'span':
-        return <SpanComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'section':
-        return <SectionComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} maxDepth={maxDepth} />;
-      case 'header':
-        return <HeaderComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'footer':
-        return <FooterComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'main':
-        return <MainComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'article':
-        return <ArticleComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'aside':
-        return <AsideComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'nav':
-        return <NavComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'ul':
-        return <UlComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'ol':
-        return <OlComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'dl':
-        return <DlComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'fieldset':
-        return <FieldSetComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'form':
-        return <FormComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'table':
-        return <TableComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'iframe':
-        return <IFrameComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      case 'figure':
-        return <FigureComponent key={index} childIndex={index} parentID={droppableDlid} depth={depth + 1} />;
-      // Add cases for other components
       default:
         return null; // Handle default case if necessary
     }

@@ -86,6 +86,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
 
     const combinedMainStyles = {
         height: "10vh",
+       
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         ...baseSectionStyles,

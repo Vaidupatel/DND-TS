@@ -37,20 +37,28 @@ import FormComponent from './FormComponent ';
 import TableComponent from './TableComponent ';
 import IFrameComponent from './IFrameComponent ';
 import FigureComponent from './FigureComponent ';
+import LiComponent from './LiComponent';
 
 interface OlComponentProps {
     childIndex: number;
     parentID: string;
     depth: number;
     maxDepth?: number;
+    draggedItemType: string | null; 
+
 }
 let currentContextMenu: HTMLDivElement | null = null;
 
-const OlComponent: React.FC<OlComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
+const OlComponent: React.FC<OlComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, draggedItemType }) => {
     const droppableOlid = `droppableOl-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setOlNodeRef } = useDroppable({
         id: droppableOlid,
+        data: {
+            accepts: ["li"],
+            childIndex,
+            parentID,
+        },
     });
 
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
@@ -62,6 +70,9 @@ const OlComponent: React.FC<OlComponentProps> = ({ childIndex, parentID, depth, 
         height: "10vh",
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
+        cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ['li'].includes(draggedItemType))
+            ? 'default'
+            : 'not-allowed',
         ...baseStyles,
     };
 
@@ -292,7 +303,7 @@ const OlComponent: React.FC<OlComponentProps> = ({ childIndex, parentID, depth, 
                     />
                 );
             case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} />;
+                return <SpanComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} draggedItemType={draggedItemType} />;
             case 'section':
                 return <SectionComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} maxDepth={maxDepth} />;
             case 'header':
@@ -308,11 +319,13 @@ const OlComponent: React.FC<OlComponentProps> = ({ childIndex, parentID, depth, 
             case 'nav':
                 return <NavComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} />;
             case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} />;
+                return <UlComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} draggedItemType={draggedItemType} />;
             case 'ol':
-                return <OlComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} />;
+                return <OlComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} draggedItemType={draggedItemType} />;
             case 'dl':
                 return <DlComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} />;
+            case 'li':
+                return <LiComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} draggedItemType={draggedItemType} />;
             case 'fieldset':
                 return <FieldSetComponent key={index} childIndex={index} parentID={droppableOlid} depth={depth + 1} />;
             case 'form':

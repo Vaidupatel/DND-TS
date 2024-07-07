@@ -17,6 +17,8 @@ import formReducer from './slices/formChildSlice';
 import tableReducer from './slices/tableChildSlice';
 import iFrameReducer from './slices/iFrameChildSlice';
 import figureReducer from './slices/figureChildSlice';
+import liReducer from './slices/liChildSlice';
+import dtReducer from './slices/dtChildSlice';
 const store = configureStore({
     reducer: {
         // counter: counterReducer,
@@ -38,6 +40,8 @@ const store = configureStore({
         tableChild: tableReducer,
         iFrameChild: iFrameReducer,
         figureChild: figureReducer,
+        liChild: liReducer,
+        dtChild: dtReducer,
     },
 });
 

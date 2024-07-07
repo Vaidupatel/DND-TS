@@ -87,6 +87,7 @@ const FooterComponent: React.FC<FooterComponentProps> = ({ childIndex, parentID,
 
     const combinedFooterStyles = {
         height: "10vh",
+       
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         ...baseSectionStyles,

@@ -60,6 +60,7 @@ const FigureComponent: React.FC<FigureComponentProps> = ({ childIndex, parentID,
 
     const combinedStyles = {
         height: "10vh",
+       
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,

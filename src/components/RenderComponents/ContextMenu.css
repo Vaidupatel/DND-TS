@@ -1,15 +1,16 @@
 .divComponent {
-  border: 2px solid blue;
+  /* border: 2px solid blue; */
   padding: 1rem;
   background-color: #f0f0f0;
 }
 .contextMenu {
-    height: 50vh;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    padding: 8px;
-    z-index: 1000;
-    overflow: scroll;
+  height: 50vh;
+  width: 25vw;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  z-index: 1000;
+  overflow: scroll;
 }
 .inputField {
   width: 100%;
@@ -19,7 +20,7 @@
   border-radius: 4px;
 }
 .button {
-  margin-top: 8px;
+  margin: 8px 0px 8px 0px;
   padding: 8px 16px;
   background-color: #007bff;
   color: #fff;

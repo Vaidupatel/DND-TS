@@ -86,6 +86,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ childIndex, parentID,
 
     const combinedHeaderStyles = {
         height: "10vh",
+       
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         ...baseSectionStyles,

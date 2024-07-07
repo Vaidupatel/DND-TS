@@ -45,15 +45,49 @@ interface SpanComponentProps {
     parentID: string;
     depth: number;
     maxDepth?: number;
+    draggedItemType: string | null;
+
 }
 
 
-const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
+const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, draggedItemType }) => {
     const dispatch = useDispatch();
     const droppableSpanid = `droppableSpan-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setNodeSpan } = useDroppable({
         id: droppableSpanid,
+        data: {
+            accepts: ["a",
+                "abbr",
+                "audio",
+                "b",
+                "br",
+                "button",
+                "cite",
+                "code",
+                "data",
+                "em",
+                "i",
+                "img",
+                "input",
+                "label",
+                "mark",
+                "output",
+                "progress",
+                "q",
+                "s",
+                "small",
+                "span",
+                "strong",
+                "sub",
+                "sup",
+                "textarea",
+                "time",
+                "u",
+                "var"],
+            childIndex,
+            parentID,
+        },
     });
 
     let currentContextMenu: HTMLDivElement | null = null;
@@ -89,8 +123,39 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, dep
 
     const combinedSpanStyles = {
         height: "10vh",
+       
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
+        cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ["a",
+            "abbr",
+            "audio",
+            "b",
+            "br",
+            "button",
+            "cite",
+            "code",
+            "data",
+            "em",
+            "i",
+            "img",
+            "input",
+            "label",
+            "mark",
+            "output",
+            "progress",
+            "q",
+            "s",
+            "small",
+            "span",
+            "strong",
+            "sub",
+            "sup",
+            "textarea",
+            "time",
+            "u",
+            "var"].includes(draggedItemType))
+            ? 'default'
+            : 'not-allowed',
         ...baseSectionStyles,
     };
 
@@ -294,6 +359,7 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, dep
                         parentID={droppableSpanid}
                         depth={depth + 1}
                         maxDepth={maxDepth}
+                        draggedItemType={draggedItemType}
                     />
                 );
             case 'section':
@@ -311,7 +377,7 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, dep
             case 'nav':
                 return <NavComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
             case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
+                return <UlComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} draggedItemType={draggedItemType} />;
             case 'ol':
                 return <OlComponent key={index} childIndex={index} parentID={droppableSpanid} depth={depth + 1} />;
             case 'dl':
@@ -333,10 +399,10 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, dep
     };
 
     return (
-        <span title='Span' ref={setNodeSpan} className={`span-component-${childIndex}`} style={combinedSpanStyles} onContextMenu={openContextMenu}>
+        <span title='Span' ref={setNodeSpan} style={combinedSpanStyles} onContextMenu={openContextMenu} >
             {spanChildren.map((name, index) => renderComponent(name, index))}
 
-        </span>
+        </span >
     );
 };
 

@@ -60,6 +60,7 @@ const IFrameComponent: React.FC<IFrameComponentProps> = ({ childIndex, parentID,
 
     const combinedStyles = {
         height: "10vh",
+       
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,
