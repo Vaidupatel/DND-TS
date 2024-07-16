@@ -4,27 +4,20 @@ import { useDispatch } from 'react-redux';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 import { removeFormChild } from '../../store/slices/formChildSlice';
 
-interface InputComponentProps {
+interface TexeAreaComponentProps {
     childIndex: number;
     parentID: string;
     draggedItemType: string | null;
 }
 
-const InputComponent: React.FC<InputComponentProps> = ({ childIndex, parentID, draggedItemType }) => {
+const TexeAreaComponent: React.FC<TexeAreaComponentProps> = ({ childIndex, parentID, draggedItemType }) => {
     const dispatch = useDispatch();
-    const [inputLabel, setInputLabel] = useState<string>('');
-    const [inputId, setInputId] = useState<string>('');
-    const [inputPlaceHolder, setInputPlaceHolder] = useState<string>('');
-    const [inputType, setInputType] = useState<string>('');
+    const [teaxtAreaLabel, setTeaxtAreaLabel] = useState<string>('');
+    const [teaxtAreaId, setTeaxtAreaId] = useState<string>('');
+    const [teaxtAreaPlaceHolder, setTeaxtAreaPlaceHolder] = useState<string>('');
     const [contextMenu, setContextMenu] = useState<HTMLElement | null>(null);
     const [labelStyles, setLabelStyles] = useState<React.CSSProperties>({});
-    const [inputStyles, setInputStyles] = useState<React.CSSProperties>({});
-
-    // useEffect(() => {
-    //     if (draggedItemType) {
-    //         setInputType(draggedItemType);
-    //     }
-    // }, [draggedItemType]);
+    const [teaxtAreaStyles, setTeaxtAreaStyles] = useState<React.CSSProperties>({});
 
 
     const styleLabelOptions = useMemo(() => [
@@ -42,21 +35,21 @@ const InputComponent: React.FC<InputComponentProps> = ({ childIndex, parentID, d
         { label: 'Label background-color', type: 'text', name: 'backgroundColor', value: labelStyles.backgroundColor ? String(labelStyles.backgroundColor) : '' },
     ], [labelStyles]);
 
-    const styleInputOptions = useMemo(() => [
-        { label: 'Input Width', type: 'text', name: 'width', value: inputStyles.width ? String(inputStyles.width) : '' },
-        { label: 'Input margin', type: 'text', name: 'height', value: inputStyles.height ? String(inputStyles.height) : '' },
-        { label: 'Input padding', type: 'text', name: 'padding', value: inputStyles.padding ? String(inputStyles.padding) : '' },
-        { label: 'Input border', type: 'text', name: 'border', value: inputStyles.border ? String(inputStyles.border) : '' },
-        { label: 'Input border-radius', type: 'text', name: 'borderRadius', value: inputStyles.borderRadius ? String(inputStyles.borderRadius) : '' },
-        { label: 'Input box shadow', type: 'text', name: 'boxShadow', value: inputStyles.boxShadow ? String(inputStyles.boxShadow) : '' },
-        { label: 'Input text-align', type: 'text', name: 'textAlign', value: inputStyles.textAlign ? String(inputStyles.textAlign) : '' },
-        { label: 'Input background-color', type: 'text', name: 'backgroundColor', value: inputStyles.backgroundColor ? String(inputStyles.backgroundColor) : '' },
-        { label: 'Input cursor', type: 'text', name: 'cursor', value: inputStyles.cursor ? String(inputStyles.cursor) : '' },
-        { label: 'Input Color', type: 'text', name: 'color', value: inputStyles.color ? String(inputStyles.color) : '' },
-        { label: 'Input Font Size', type: 'text', name: 'fontSize', value: inputStyles.fontSize ? String(inputStyles.fontSize) : '' },
-    ], [inputStyles]);
+    const styleTextAreaOptions = useMemo(() => [
+        { label: 'Input Width', type: 'text', name: 'width', value: teaxtAreaStyles.width ? String(teaxtAreaStyles.width) : '' },
+        { label: 'Input margin', type: 'text', name: 'height', value: teaxtAreaStyles.height ? String(teaxtAreaStyles.height) : '' },
+        { label: 'Input padding', type: 'text', name: 'padding', value: teaxtAreaStyles.padding ? String(teaxtAreaStyles.padding) : '' },
+        { label: 'Input border', type: 'text', name: 'border', value: teaxtAreaStyles.border ? String(teaxtAreaStyles.border) : '' },
+        { label: 'Input border-radius', type: 'text', name: 'borderRadius', value: teaxtAreaStyles.borderRadius ? String(teaxtAreaStyles.borderRadius) : '' },
+        { label: 'Input box shadow', type: 'text', name: 'boxShadow', value: teaxtAreaStyles.boxShadow ? String(teaxtAreaStyles.boxShadow) : '' },
+        { label: 'Input text-align', type: 'text', name: 'textAlign', value: teaxtAreaStyles.textAlign ? String(teaxtAreaStyles.textAlign) : '' },
+        { label: 'Input background-color', type: 'text', name: 'backgroundColor', value: teaxtAreaStyles.backgroundColor ? String(teaxtAreaStyles.backgroundColor) : '' },
+        { label: 'Input cursor', type: 'text', name: 'cursor', value: teaxtAreaStyles.cursor ? String(teaxtAreaStyles.cursor) : '' },
+        { label: 'Input Color', type: 'text', name: 'color', value: teaxtAreaStyles.color ? String(teaxtAreaStyles.color) : '' },
+        { label: 'Input Font Size', type: 'text', name: 'fontSize', value: teaxtAreaStyles.fontSize ? String(teaxtAreaStyles.fontSize) : '' },
+    ], [teaxtAreaStyles]);
 
-    const openContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    const openContextMenu = (event: React.MouseEvent<HTMLTextAreaElement>) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -90,9 +83,9 @@ const InputComponent: React.FC<InputComponentProps> = ({ childIndex, parentID, d
         LabelInput.type = 'text';
         LabelInput.placeholder = 'Enter the label for input ...';
         LabelInput.className = 'inputField';
-        LabelInput.value = inputLabel;
+        LabelInput.value = teaxtAreaLabel;
         LabelInput.addEventListener('input', (e) => {
-            setInputLabel((e.target as HTMLInputElement)?.value || ''); // Cast to HTMLInputElement
+            setTeaxtAreaLabel((e.target as HTMLInputElement)?.value || ''); // Cast to HTMLInputElement
         });
 
         // ID
@@ -100,38 +93,21 @@ const InputComponent: React.FC<InputComponentProps> = ({ childIndex, parentID, d
         IdInput.type = 'text';
         IdInput.placeholder = 'Enter the id for input ...';
         IdInput.className = 'inputField';
-        IdInput.value = inputId;
+        IdInput.value = teaxtAreaId;
         IdInput.addEventListener('input', (e) => {
-            setInputId((e.target as HTMLInputElement)?.value.toLowerCase() || ''); // Cast to HTMLInputElement
+            setTeaxtAreaId((e.target as HTMLInputElement)?.value.toLowerCase() || ''); // Cast to HTMLInputElement
         });
 
-        const TypeInput = document.createElement('select');
-        TypeInput.className = 'inputField';
-        TypeInput.title = "Select Input Type";
 
-        ['text', 'number', 'email', 'password'].forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.text = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize first letter
-            if (type === inputType) {
-                option.selected = true;
-            }
-            TypeInput.appendChild(option);
-        });
-
-        TypeInput.addEventListener('change', (e) => {
-            const selectedType = (e.target as HTMLSelectElement)?.value || 'text';
-            setInputType(selectedType);
-        });
 
         // Placeholder
         const PlaceHolderInput = document.createElement('input');
         PlaceHolderInput.type = 'text';
         PlaceHolderInput.placeholder = 'Enter the placeholder for input ...';
         PlaceHolderInput.className = 'inputField';
-        PlaceHolderInput.value = inputPlaceHolder;
+        PlaceHolderInput.value = teaxtAreaPlaceHolder;
         PlaceHolderInput.addEventListener('input', (e) => {
-            setInputPlaceHolder((e.target as HTMLInputElement)?.value || '');
+            setTeaxtAreaPlaceHolder((e.target as HTMLInputElement)?.value || '');
         });
 
 
@@ -143,15 +119,14 @@ const InputComponent: React.FC<InputComponentProps> = ({ childIndex, parentID, d
         fieldContainer.appendChild(IdInput);
         fieldContainer.appendChild(PlaceHolderInput);
         fieldContainer.appendChild(LabelInput);
-        fieldContainer.appendChild(TypeInput);
 
         const spliter = document.createElement('div');
         spliter.style.width = '100%';
-        spliter.style.height = '2px'; 
-        spliter.style.margin = '8px'; 
-        spliter.style.backgroundColor = '#999'; 
-        
-        
+        spliter.style.height = '2px';
+        spliter.style.margin = '8px';
+        spliter.style.backgroundColor = '#999';
+
+
         ContextMenu.appendChild(fieldContainer);
         ContextMenu.appendChild(spliter);
 
@@ -181,7 +156,7 @@ const InputComponent: React.FC<InputComponentProps> = ({ childIndex, parentID, d
         };
 
         styleLabelOptions.forEach(option => createInputField(option.label, option.type, option.name, option.value, setLabelStyles));
-        styleInputOptions.forEach(option => createInputField(option.label, option.type, option.name, option.value, setInputStyles));
+        styleTextAreaOptions.forEach(option => createInputField(option.label, option.type, option.name, option.value, setTeaxtAreaStyles));
 
 
         ContextMenu.appendChild(styleForm)
@@ -237,11 +212,11 @@ const InputComponent: React.FC<InputComponentProps> = ({ childIndex, parentID, d
 
 
     return (
-        <div onContextMenu={openContextMenu}>
-            <label style={labelStyles}>{inputLabel || "Default"}</label>
-            <input style={inputStyles} type={inputType} id={inputId} placeholder={inputPlaceHolder} />
-        </div>
+        <textarea
+            title='Text Area' onContextMenu={openContextMenu}>
+
+        </textarea>
     );
 };
 
-export default InputComponent;
+export default TexeAreaComponent;

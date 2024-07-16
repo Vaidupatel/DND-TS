@@ -335,6 +335,7 @@ const DtComponent: React.FC<DtComponentProps> = ({ childIndex, parentID, depth, 
     return (
         <li
             title='List Iteam'
+            className={droppableDtid}
             ref={setDtNodeRef}
             style={combinedStyles}
             onContextMenu={openContextMenu}

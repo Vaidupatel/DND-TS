@@ -86,7 +86,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
 
     const combinedMainStyles = {
         height: "10vh",
-       
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         ...baseSectionStyles,
@@ -332,7 +332,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
         <main
             title='Main'
             ref={setNodeMain}
-            className={`main-component-${childIndex}`}
+            className={droppableMainid}
             style={combinedMainStyles}
             onContextMenu={openContextMenu}
         >

@@ -87,7 +87,7 @@ const FooterComponent: React.FC<FooterComponentProps> = ({ childIndex, parentID,
 
     const combinedFooterStyles = {
         height: "10vh",
-       
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         ...baseSectionStyles,
@@ -336,7 +336,7 @@ const FooterComponent: React.FC<FooterComponentProps> = ({ childIndex, parentID,
         <footer
             title='Footer'
             ref={setNodeFooter}
-            className={`footer-component-${childIndex}`}
+            className={droppableFooterid}
             style={combinedFooterStyles}
             onContextMenu={openContextMenu}
         >

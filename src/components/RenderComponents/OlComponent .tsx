@@ -44,7 +44,7 @@ interface OlComponentProps {
     parentID: string;
     depth: number;
     maxDepth?: number;
-    draggedItemType: string | null; 
+    draggedItemType: string | null;
 
 }
 let currentContextMenu: HTMLDivElement | null = null;
@@ -344,6 +344,7 @@ const OlComponent: React.FC<OlComponentProps> = ({ childIndex, parentID, depth, 
     return (
         <ol
             title='Orderd List'
+            className={droppableOlid}
             style={combinedStyles}
             ref={setOlNodeRef}
             onContextMenu={openContextMenu}

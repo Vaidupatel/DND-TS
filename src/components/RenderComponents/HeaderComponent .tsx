@@ -86,7 +86,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ childIndex, parentID,
 
     const combinedHeaderStyles = {
         height: "10vh",
-       
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         ...baseSectionStyles,
@@ -333,9 +333,9 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ childIndex, parentID,
 
     return (
         <header
-        title='Header'
+            title='Header'
             ref={setNodeHeader}
-            className={`header-component-${childIndex}`}
+            className={droppableHeaderid}
             style={combinedHeaderStyles}
             onContextMenu={openContextMenu}
         >

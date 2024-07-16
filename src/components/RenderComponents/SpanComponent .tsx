@@ -123,7 +123,7 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, dep
 
     const combinedSpanStyles = {
         height: "10vh",
-       
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ["a",
@@ -399,7 +399,12 @@ const SpanComponent: React.FC<SpanComponentProps> = ({ childIndex, parentID, dep
     };
 
     return (
-        <span title='Span' ref={setNodeSpan} style={combinedSpanStyles} onContextMenu={openContextMenu} >
+        <span title='Span'
+            className={droppableSpanid}
+            ref={setNodeSpan}
+            style={combinedSpanStyles}
+            onContextMenu={openContextMenu}
+        >
             {spanChildren.map((name, index) => renderComponent(name, index))}
 
         </span >

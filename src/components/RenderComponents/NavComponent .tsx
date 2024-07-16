@@ -331,6 +331,7 @@ const NavComponent: React.FC<NavComponentProps> = ({ childIndex, parentID, depth
             title='Nav'
             ref={setNodeNav}
             // className={`nav-component-${childIndex}`}
+            className={droppableNavid}
             style={combinedNavStyles}
             onContextMenu={openContextMenu}
         >

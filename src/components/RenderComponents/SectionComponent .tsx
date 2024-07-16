@@ -335,8 +335,8 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ childIndex, parentI
     return (
         <section
             title='Section'
+            className={droppableSectionid}
             ref={setNodeSection}
-            className={`section-component-${childIndex}`}
             style={combinedsectionStyles}
             onContextMenu={openContextMenu}
         >

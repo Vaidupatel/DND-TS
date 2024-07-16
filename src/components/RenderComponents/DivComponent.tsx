@@ -64,7 +64,6 @@ const DivComponent: React.FC<DivComponentProps> = ({ childIndex, parentID, depth
 
   const combinedStyles = {
     height: "10vh",
-   
     border: '1px dashed red',
     backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
     ...baseStyles,
@@ -339,8 +338,9 @@ const DivComponent: React.FC<DivComponentProps> = ({ childIndex, parentID, depth
 
 
   return (
-    <div title='Div' ref={setDivNodeRef} style={combinedStyles} onContextMenu={openContextMenu}>
+    <div title='Div' ref={setDivNodeRef} className={droppableDivid} style={combinedStyles} onContextMenu={openContextMenu}>
       {divChildren.map((name: string, index: number) => renderComponent(name, index))}
+      {droppableDivid}
     </div>
   );
 };

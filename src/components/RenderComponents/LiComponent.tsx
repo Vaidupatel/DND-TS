@@ -62,8 +62,8 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
     const [searchTerm, setSearchTerm] = useState<string>('');
 
     const combinedStyles = {
-        height: "10vh",
-       
+        height: "2vh",
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,
@@ -335,6 +335,7 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
     return (
         <li
             title='List Iteam'
+            className={droppableLiid}
             ref={setLiNodeRef}
             style={combinedStyles}
             onContextMenu={openContextMenu}

@@ -67,7 +67,7 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
     const combinedStyles = {
         height: "10vh",
         border: '1px dashed red',
-       
+
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,
     };
@@ -341,7 +341,7 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
 
 
     return (
-        <div title='Article' ref={setArticleNodeRef} style={combinedStyles} onContextMenu={openContextMenu}>
+        <div title='Article' className={droppableArticleid} ref={setArticleNodeRef} style={combinedStyles} onContextMenu={openContextMenu}>
 
             {articleChildren.map((name: string, index: number) => renderComponent(name, index))}
 

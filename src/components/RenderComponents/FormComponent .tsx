@@ -25,6 +25,7 @@ import { removeFigureChild } from '../../store/slices/figureChildSlice';
 import ButtonComponent from './ButtonComponent';
 import SelectComponent from './SelectComponent';
 import InputComponent from './InputComponent';
+import TexeAreaComponent from './TextAreaComponent';
 
 interface FormComponentProps {
     childIndex: number;
@@ -285,6 +286,10 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
                 return (
                     <InputComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />
                 );
+            case 'textarea':
+                return (
+                    <TexeAreaComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />
+                );
             case 'button':
                 return <ButtonComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />;
             case 'select':
@@ -299,6 +304,7 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
         <form
             title='Form'
             style={combinedStyles}
+            className={droppableFormid}
             ref={setFormNodeRef}
             onContextMenu={openContextMenu}
         >

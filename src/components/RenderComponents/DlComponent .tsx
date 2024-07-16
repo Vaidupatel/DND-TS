@@ -22,22 +22,6 @@ import { removeTableChild } from '../../store/slices/tableChildSlice';
 import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
 import DtComponent from './DtComponent';
-// import DivComponent from './DivComponent';
-// import SpanComponent from './SpanComponent ';
-// import SectionComponent from './SectionComponent ';
-// import HeaderComponent from './HeaderComponent ';
-// import FooterComponent from './FooterComponent ';
-// import MainComponent from './MainComponent ';
-// import AsideComponent from './AsideComponent ';
-// import NavComponent from './NavComponent ';
-// import UlComponent from './UlComponent ';
-// import OlComponent from './OlComponent ';
-// import ArticleComponent from './ArticleComponent';
-// import FieldSetComponent from './FieldSetComponent ';
-// import FormComponent from './FormComponent ';
-// import TableComponent from './TableComponent ';
-// import IFrameComponent from './IFrameComponent ';
-// import FigureComponent from './FigureComponent ';
 
 interface DlComponentProps {
   childIndex: number;
@@ -314,6 +298,7 @@ const DlComponent: React.FC<DlComponentProps> = ({ childIndex, parentID, depth, 
       style={combinedStyles}
       ref={setDlNodeRef}
       onContextMenu={openContextMenu}
+      className={droppableDlid}
     >
       {dlChildren.map((name: string, index: number) => renderComponent(name, index))}
     </ol>

@@ -85,7 +85,7 @@ const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID, d
 
     const combinedAsideStyles = {
         height: "10vh",
-       
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
         ...baseSectionStyles,
@@ -329,7 +329,8 @@ const AsideComponent: React.FC<AsideComponentProps> = ({ childIndex, parentID, d
     };
 
     return (
-        <aside title='Aside' ref={setNodeAside} className={`aside-component-${childIndex}`}
+        <aside title='Aside' ref={setNodeAside}
+            className={droppableAsideid}
             style={combinedAsideStyles}
             onContextMenu={openContextMenu}>
             {asideChildren.map((name: string, index: number) => renderComponent(name, index))}

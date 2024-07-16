@@ -29,3 +29,5 @@ const componentNamesSlice = createSlice({
 export const { addComponentName, removeComponentName, clearComponentNames } = componentNamesSlice.actions;
 
 export default componentNamesSlice.reducer;
+
+

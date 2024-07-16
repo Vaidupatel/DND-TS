@@ -61,7 +61,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ childIndex, parentID, d
 
     const combinedStyles = {
         height: "10vh",
-       
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,
@@ -333,6 +333,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ childIndex, parentID, d
     return (
         <fieldset
             title='Table'
+            className={droppableTableid}
             style={combinedStyles}
             ref={setTableNodeRef}
             onContextMenu={openContextMenu}

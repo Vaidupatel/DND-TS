@@ -11,7 +11,8 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
 
     return (
         <React.Fragment>
-            <button>
+            <button
+                className={droppableButtonid}>
                 click me!
             </button>
         </React.Fragment>

@@ -60,7 +60,7 @@ const FigureComponent: React.FC<FigureComponentProps> = ({ childIndex, parentID,
 
     const combinedStyles = {
         height: "10vh",
-       
+
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,
@@ -333,6 +333,7 @@ const FigureComponent: React.FC<FigureComponentProps> = ({ childIndex, parentID,
         <figure
             title='Figure'
             style={combinedStyles}
+            className={droppableFigureid}
             ref={setFigureNodeRef}
             onContextMenu={openContextMenu}
         >

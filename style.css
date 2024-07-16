@@ -1,0 +1,16 @@
+.droppableDiv-droppable-1 {
+  height: 50vh;
+  border: 2px solid #555;
+  background-color: #555;
+  width: 60vw;
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 1rem;
+  margin: auto;
+  box-shadow: 2px 2px 2px 2px #000;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
