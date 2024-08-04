@@ -19,9 +19,10 @@ import iFrameReducer from './slices/iFrameChildSlice';
 import figureReducer from './slices/figureChildSlice';
 import liReducer from './slices/liChildSlice';
 import dtReducer from './slices/dtChildSlice';
+import selectReducer from './slices/selectChildSlice';
+import paragraphReducer from './slices/paragraphChildSlice';
 const store = configureStore({
     reducer: {
-        // counter: counterReducer,
         componentNames: componentNamesReducer,
         divChild: divChildReducer,
         spanChild: spanChildReducer,
@@ -42,6 +43,8 @@ const store = configureStore({
         figureChild: figureReducer,
         liChild: liReducer,
         dtChild: dtReducer,
+        selectChild: selectReducer,
+        paragraphChild: paragraphReducer,
     },
 });
 

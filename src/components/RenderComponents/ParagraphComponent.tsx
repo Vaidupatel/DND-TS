@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { useDroppable } from '@dnd-kit/core';
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../store/store';
+import { useDroppable } from '@dnd-kit/core';
 import { removeDivChild } from '../../store/slices/divChildListSlice';
 import { removeSpanChild } from '../../store/slices/spanChildSlice';
 import { removeSectionChild } from '../../store/slices/sectionChildSlice';
@@ -21,79 +21,110 @@ import { removeFormChild } from '../../store/slices/formChildSlice';
 import { removeTableChild } from '../../store/slices/tableChildSlice';
 import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
-import DivComponent from './DivComponent';
 import SpanComponent from './SpanComponent ';
-import SectionComponent from './SectionComponent ';
-import HeaderComponent from './HeaderComponent ';
-import FooterComponent from './FooterComponent ';
-import MainComponent from './MainComponent ';
-import AsideComponent from './AsideComponent ';
-import NavComponent from './NavComponent ';
-import UlComponent from './UlComponent ';
-import DlComponent from './DlComponent ';
-import OlComponent from './OlComponent ';
-import ArticleComponent from './ArticleComponent';
-import FormComponent from './FormComponent ';
-import TableComponent from './TableComponent ';
-import IFrameComponent from './IFrameComponent ';
-import FigureComponent from './FigureComponent ';
 
-interface FieldSetComponentProps {
+
+
+interface ParagraphComponentProps {
     childIndex: number;
     parentID: string;
+    onUpdate: (childId: string, html: string, css: string) => void;
+    onRemove: (childId: string) => void;
     depth: number;
     maxDepth?: number;
+    draggedItemType: string | null;
 }
+
+
 let currentContextMenu: HTMLDivElement | null = null;
 
-const FieldSetComponent: React.FC<FieldSetComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
-    const droppableFieldSetid = `droppableFieldSet-${parentID}-${childIndex}`;
+const ParagraphComponent: React.FC<ParagraphComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, onUpdate, onRemove, draggedItemType }) => {
 
-    const { isOver, setNodeRef: setFieldSetNodeRef } = useDroppable({
-        id: droppableFieldSetid,
+    const dispatch = useDispatch();
+    const droppableParagraphId = `droppableP-${parentID}-${childIndex}`;
+    const paragraphRef = useRef<HTMLParagraphElement | null>(null);
+
+    const { isOver, setNodeRef: setNodeParagraph } = useDroppable({
+        id: droppableParagraphId,
+        data: {
+            accepts: ["span", "a", "s", "code"],
+            childIndex,
+            parentID,
+        },
     });
 
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
-
-    const dispatch = useDispatch();
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [childrenData, setChildrenData] = useState<Record<string, { html: string, css: string }>>({});
 
-    const combinedStyles = {
-        height: "10vh",
+    const styleOptions = useMemo(() => [
+        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
+        { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '' },
+        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '' },
+        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
+        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
+        { label: 'Text Align', type: 'text', name: 'textAlign', value: baseStyles.textAlign ? String(baseStyles.textAlign) : '' },
+        { label: 'Line Height', type: 'text', name: 'lineHeight', value: baseStyles.lineHeight ? String(baseStyles.lineHeight) : '' },
+        { label: 'Font Weight', type: 'text', name: 'fontWeight', value: baseStyles.fontWeight ? String(baseStyles.fontWeight) : '' },
+        { label: 'Font Style', type: 'text', name: 'fontStyle', value: baseStyles.fontStyle ? String(baseStyles.fontStyle) : '' },
+        { label: 'Text Decoration', type: 'text', name: 'textDecoration', value: baseStyles.textDecoration ? String(baseStyles.textDecoration) : '' },
+    ], [baseStyles]);
 
-        border: '1px dashed red',
-        backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
+    const combinedParagraphStyles = {
+        border: '1px dashed blue',
+        backgroundColor: isOver ? '#E6F7FF' : baseStyles.backgroundColor,
+        outline: 'none',
+        cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ["span", "a", "s", "code"].includes(draggedItemType))
+            ? 'default'
+            : 'not-allowed',
         ...baseStyles,
     };
 
-    const styleOptions = useMemo(() => [
-        { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
-        { label: 'Height', type: 'text', name: 'height', value: baseStyles.height ? String(baseStyles.height) : '' },
-        { label: 'Width', type: 'text', name: 'width', value: baseStyles.width ? String(baseStyles.width) : '' },
-        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '' },
-        { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '' },
-        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
-        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
-        { label: 'Padding Left', type: 'text', name: 'paddingLeft', value: baseStyles.paddingLeft ? String(baseStyles.paddingLeft) : '' },
-        { label: 'Padding Top', type: 'text', name: 'paddingTop', value: baseStyles.paddingTop ? String(baseStyles.paddingTop) : '' },
-        { label: 'Padding Right', type: 'text', name: 'paddingRight', value: baseStyles.paddingRight ? String(baseStyles.paddingRight) : '' },
-        { label: 'Padding Bottom', type: 'text', name: 'paddingBottom', value: baseStyles.paddingBottom ? String(baseStyles.paddingBottom) : '' },
-        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
-        { label: 'Margin Left', type: 'text', name: 'marginLeft', value: baseStyles.marginLeft ? String(baseStyles.marginLeft) : '' },
-        { label: 'Margin Top', type: 'text', name: 'marginTop', value: baseStyles.marginTop ? String(baseStyles.marginTop) : '' },
-        { label: 'Margin Right', type: 'text', name: 'marginRight', value: baseStyles.marginRight ? String(baseStyles.marginRight) : '' },
-        { label: 'Margin Bottom', type: 'text', name: 'marginBottom', value: baseStyles.marginBottom ? String(baseStyles.marginBottom) : '' },
-        { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseStyles.boxShadow ? String(baseStyles.boxShadow) : '' },
-        { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseStyles.borderRadius ? String(baseStyles.borderRadius) : '' },
-        { label: 'Text Align', type: 'text', name: 'textAlign', value: baseStyles.textAlign ? String(baseStyles.textAlign) : '' },
-        { label: 'Display', type: 'text', name: 'display', value: baseStyles.display ? String(baseStyles.display) : '' },
-        { label: 'Flex Direction', type: 'text', name: 'flexDirection', value: baseStyles.flexDirection ? String(baseStyles.flexDirection) : '' },
-        { label: 'Justify Content', type: 'text', name: 'justifyContent', value: baseStyles.justifyContent ? String(baseStyles.justifyContent) : '' },
-        { label: 'Align Items', type: 'text', name: 'alignItems', value: baseStyles.alignItems ? String(baseStyles.alignItems) : '' },
-        { label: 'Gap', type: 'text', name: 'gap', value: baseStyles.gap ? String(baseStyles.gap) : '' },
-    ], [baseStyles]);
+    const handleChildUpdate = useCallback((childId: string, html: string, css: string) => {
+        setChildrenData(prevData => ({
+            ...prevData,
+            [childId]: { html, css }
+        }));
+    }, []);
 
-    const openContextMenu = (event: React.MouseEvent<HTMLFieldSetElement>) => {
+    const handleChildRemove = useCallback((childId: string) => {
+        setChildrenData(prevData => {
+            const newData = { ...prevData };
+            delete newData[childId];
+            return newData;
+        });
+    }, []);
+
+    useEffect(() => {
+        if (paragraphRef.current) {
+            let mergedChildrenHTML = '';
+            let mergedChildrenCSS = '';
+            Object.values(childrenData).forEach(data => {
+                mergedChildrenHTML += data.html;
+                mergedChildrenCSS += data.css;
+            });
+
+            const htmlString = `<p class="${droppableParagraphId}">${paragraphRef.current.innerHTML}${mergedChildrenHTML}</p>`;
+            const cssString = `
+            .${droppableParagraphId} {
+                ${Object.entries(baseStyles)
+                    .map(([key, value]) => `${key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}: ${value};`)
+                    .join('\n  ')}
+            }
+            ${mergedChildrenCSS}
+            `;
+
+            onUpdate(droppableParagraphId, htmlString, cssString);
+        }
+    }, [baseStyles, childrenData, droppableParagraphId, onUpdate]);
+
+    const handleContentChange = () => {
+        // Trigger the effect to update the content
+        setChildrenData(prevData => ({ ...prevData }));
+    };
+
+
+    const openContextMenu = (event: React.MouseEvent<HTMLParagraphElement>) => {
         if (event.target === event.currentTarget) {
             event.preventDefault();
             event.stopPropagation();
@@ -105,6 +136,34 @@ const FieldSetComponent: React.FC<FieldSetComponentProps> = ({ childIndex, paren
             const contextMenu = document.createElement('div');
             currentContextMenu = contextMenu;
             contextMenu.className = 'contextMenu';
+            contextMenu.style.cursor = 'move';
+
+            // Add draggable functionality
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            const onMouseDown = (e: MouseEvent) => {
+                isDragging = true;
+                offsetX = e.clientX - contextMenu.getBoundingClientRect().left;
+                offsetY = e.clientY - contextMenu.getBoundingClientRect().top;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e: MouseEvent) => {
+                if (isDragging) {
+                    contextMenu.style.left = `${e.clientX - offsetX}px`;
+                    contextMenu.style.top = `${e.clientY - offsetY}px`;
+                }
+            };
+
+            const onMouseUp = () => {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+            contextMenu.addEventListener('mousedown', onMouseDown);
 
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Remove';
@@ -149,11 +208,71 @@ const FieldSetComponent: React.FC<FieldSetComponentProps> = ({ childIndex, paren
                     dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
+                onRemove(droppableParagraphId)
                 currentContextMenu = null;
             });
 
+
+            const styleButtons = [
+                { label: 'Bold', command: 'bold' },
+                { label: 'Italic', command: 'italic' },
+                { label: 'Underline', command: 'underline' },
+                { label: 'Strikethrough', command: 'strikeThrough' },
+                { label: 'Subscript', command: 'subscript' },
+                { label: 'Superscript', command: 'superscript' },
+                { label: 'Align Left', command: 'justifyLeft' },
+                { label: 'Align Center', command: 'justifyCenter' },
+                { label: 'Align Right', command: 'justifyRight' },
+                { label: 'Justify', command: 'justifyFull' },
+                { label: 'Indent', command: 'indent' },
+                { label: 'Outdent', command: 'outdent' },
+                { label: 'Small', command: 'fontSize', value: '1' },
+                { label: 'Cite', command: 'insertHTML', value: '<cite>$&</cite>' },
+                { label: 'Line Break', command: 'insertHTML', value: '<br>' },
+                { label: 'Pre', command: 'insertHTML', value: '<pre>$&</pre>' },
+                { label: 'Mark', command: 'insertHTML', value: '<mark>$&</mark>' },
+            ];
+
+            const styleButtonDiv = document.createElement('div');
+            styleButtonDiv.style.display = 'grid'
+            styleButtonDiv.style.gridTemplateColumns = 'repeat(2, 1fr)';
+
+            styleButtons.forEach(button => {
+                const styleButton = document.createElement('button');
+                styleButton.textContent = button.label;
+                styleButton.className = 'button';
+                styleButton.addEventListener('click', () => applyStyle(button.command, button.value));
+                styleButtonDiv.appendChild(styleButton);
+            });
+
+            contextMenu.appendChild(styleButtonDiv);
+
+            const applyStyle = (command: string, value?: string) => {
+                if (value) {
+                    if (command === 'insertHTML') {
+                        const selection = window.getSelection();
+                        if (selection && selection.rangeCount > 0) {
+                            const range = selection.getRangeAt(0);
+                            const selectedText = range.toString();
+                            const newHtml = value.replace('$&', selectedText);
+                            document.execCommand(command, false, newHtml);
+                        } else {
+                            document.execCommand(command, false, value);
+                        }
+                    } else {
+                        document.execCommand(command, false, value);
+                    }
+                } else {
+                    document.execCommand(command, false);
+                }
+                handleContentChange();
+            };
+
+
+
             const styleForm = document.createElement('form');
             styleForm.className = 'style-form';
+
 
             const searchInput = document.createElement('input');
             searchInput.type = 'text';
@@ -196,6 +315,7 @@ const FieldSetComponent: React.FC<FieldSetComponentProps> = ({ childIndex, paren
                 .forEach(option => createInputField(option.label, option.type, option.name, option.value));
 
             contextMenu.appendChild(removeButton);
+            // contextMenu.appendChild(pText);
             contextMenu.appendChild(searchInput);
             contextMenu.appendChild(styleForm);
             document.body.appendChild(contextMenu);
@@ -225,6 +345,7 @@ const FieldSetComponent: React.FC<FieldSetComponentProps> = ({ childIndex, paren
                 while (styleForm.firstChild) {
                     styleForm.removeChild(styleForm.firstChild);
                 }
+
                 const searchInput = document.createElement('input');
                 searchInput.type = 'text';
                 searchInput.placeholder = 'Search styles...';
@@ -266,80 +387,61 @@ const FieldSetComponent: React.FC<FieldSetComponentProps> = ({ childIndex, paren
     }, [searchTerm]);
 
 
-    const selectFieldSetChildren = createSelector(
-        [(state: RootState) => state.fieldSetChild, (_, droppableFieldSetid: string) => droppableFieldSetid],
-        (fieldSetChild, droppableFieldSetid) => fieldSetChild[droppableFieldSetid] || []
+    const selectParagraphChildren = createSelector(
+        [(state: RootState) => state.paragraphChild, (_, droppableParagraphId: string) => droppableParagraphId],
+        (paragraphChild, droppableParagraphId) => paragraphChild[droppableParagraphId] || []
     );
-    const fieldSetChildren = useSelector((state: RootState) => selectFieldSetChildren(state, droppableFieldSetid));
-
+    const paragraphChildren = useSelector((state: RootState) => selectParagraphChildren(state, droppableParagraphId));
 
 
     const renderComponent = (name: string, index: number) => {
         if (depth >= maxDepth) {
             return (
-                <div key={`${droppableFieldSetid}-${index}`} style={{ padding: '10px', border: '1px dashed red' }}>
+                <div key={`${droppableParagraphId}-${index}`} style={{ padding: '10px', border: '1px dashed red' }}>
                     Max nesting depth reached
                 </div>
             );
         }
         switch (name) {
-            case 'div':
+            case 'span':
                 return (
-                    <DivComponent
-                        key={`${droppableFieldSetid}-${index}`}
+                    <SpanComponent
+                        key={`${droppableParagraphId}-${index}`}
                         childIndex={index}
-                        parentID={droppableFieldSetid}
+                        parentID={droppableParagraphId}
                         depth={depth + 1}
+                        maxDepth={maxDepth}
+                        draggedItemType={draggedItemType}
+                        onUpdate={handleChildUpdate}
+                        onRemove={handleChildRemove}
                     />
                 );
-            case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'section':
-                return <SectionComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} maxDepth={maxDepth} />;
-            case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'main':
-                return <MainComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'aside':
-                return <AsideComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'ol':
-                return <OlComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'dl':
-                return <DlComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'fieldset':
-                return <FieldSetComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'form':
-                return <FormComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'table':
-                return <TableComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'iframe':
-                return <IFrameComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            case 'figure':
-                return <FigureComponent key={index} childIndex={index} parentID={droppableFieldSetid} depth={depth + 1} />;
-            // Add cases for other components
+            // Add cases for other allowed components
             default:
-                return null; // Handle default case if necessary
+                return null;
         }
     };
+
     return (
-        <fieldset
-            title='FieldSet'
-            className={droppableFieldSetid}
-            style={combinedStyles}
-            ref={setFieldSetNodeRef}
+        <p
+            title='Paragraph'
+            className={droppableParagraphId}
+            ref={(node) => {
+                setNodeParagraph(node);
+                if (node) {
+                    paragraphRef.current = node;
+                }
+            }}
+            style={combinedParagraphStyles}
             onContextMenu={openContextMenu}
+            contentEditable={true}
+            onInput={handleContentChange}
+            suppressContentEditableWarning={true}
         >
-            {fieldSetChildren.map((name: string, index: number) => renderComponent(name, index))}
-        </fieldset>
+            Default paragraph text
+            {paragraphChildren.map((name, index) => renderComponent(name, index))}
+        </p>
     );
 };
 
-export default FieldSetComponent;
+export default ParagraphComponent;

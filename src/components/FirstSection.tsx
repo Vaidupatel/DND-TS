@@ -1,4 +1,4 @@
-import React, {  useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './FirstSection.css';
 import { DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import Droppable from './Droppable';
@@ -27,6 +27,7 @@ import { addFigureChild, setInitialFigureChild } from '../store/slices/figureChi
 import { addArticleChild, setInitialArticleChild } from '../store/slices/articleChildSlice';
 import Dropdown from './DropdownComponent';
 import { Components } from './types';
+import { addParagraphChild } from '../store/slices/paragraphChildSlice';
 
 
 const FirstSection: React.FC = () => {
@@ -51,7 +52,7 @@ const FirstSection: React.FC = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [ openDropdown]);
+    }, [openDropdown]);
 
     const [draggedItemType, setDraggedItemType] = useState<string | null>(null);
 
@@ -121,6 +122,12 @@ const FirstSection: React.FC = () => {
                     const spanIndex = droppableId;
                     if (componentName) {
                         dispatch(addSpanChild({ SpanId: spanIndex, componentName }));
+                    }
+                }
+                else if (droppableId.startsWith('droppableP-')) {
+                    const paragraphIndex = droppableId;
+                    if (componentName) {
+                        dispatch(addParagraphChild({ ParagraphId: paragraphIndex, componentName }));
                     }
                 } else if (droppableId.startsWith('droppableSection-')) {
                     const sectionIndex = droppableId;
@@ -249,7 +256,7 @@ const FirstSection: React.FC = () => {
         (_, index) => dropdownRefs.current[index] ?? React.createRef()
     );
 
-    
+
     return (
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <section>
@@ -295,7 +302,3 @@ const styles: { addedComp?: React.CSSProperties, listOuterStyle?: React.CSSPrope
         }
     }
 ]
-
-
-
-

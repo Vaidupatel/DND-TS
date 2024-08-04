@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 import { removeDivChild } from '../../store/slices/divChildListSlice';
@@ -33,20 +33,25 @@ import ArticleComponent from './ArticleComponent';
 import UlComponent from './UlComponent ';
 import OlComponent from './OlComponent ';
 import DlComponent from './DlComponent ';
-import FieldSetComponent from './FieldSetComponent ';
 import FormComponent from './FormComponent ';
 import TableComponent from './TableComponent ';
 import IFrameComponent from './IFrameComponent ';
 import FigureComponent from './FigureComponent ';
+import ImageComponent from './ImageComponent';
+import VideoComponent from './VideoComponent';
+import AudioComponent from './AudioComponent';
+import ParagraphComponent from './ParagraphComponent';
 
 interface MainComponentProps {
     childIndex: number;
     parentID: string;
+    onUpdate: (childId: string, html: string, css: string) => void;
+    onRemove: (childId: string) => void;
     depth: number;
     maxDepth?: number
 }
 
-const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
+const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, onUpdate, onRemove }) => {
     const dispatch = useDispatch();
     const droppableMainid = `droppableMain-${parentID}-${childIndex}`;
 
@@ -55,43 +60,79 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
     });
     let currentContextMenu: HTMLDivElement | null = null;
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [baseSectionStyles, setbaseSectionStyles] = useState<React.CSSProperties>({});
+    const [baseStyles, setbaseStyles] = useState<React.CSSProperties>({});
     const styleOptions = useMemo(() => [
-        { label: 'Border', type: 'text', name: 'border', value: baseSectionStyles.border ? String(baseSectionStyles.border) : '' },
-        { label: 'Height', type: 'text', name: 'height', value: baseSectionStyles.height ? String(baseSectionStyles.height) : '' },
-        { label: 'Width', type: 'text', name: 'width', value: baseSectionStyles.width ? String(baseSectionStyles.width) : '' },
-        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseSectionStyles.backgroundColor ? String(baseSectionStyles.backgroundColor) : '' },
-        { label: 'Color', type: 'text', name: 'color', value: baseSectionStyles.color ? String(baseSectionStyles.color) : '' },
-        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseSectionStyles.fontSize ? String(baseSectionStyles.fontSize) : '' },
-        { label: 'Padding', type: 'text', name: 'padding', value: baseSectionStyles.padding ? String(baseSectionStyles.padding) : '' },
-        { label: 'Padding Left', type: 'text', name: 'paddingLeft', value: baseSectionStyles.paddingLeft ? String(baseSectionStyles.paddingLeft) : '' },
-        { label: 'Padding Top', type: 'text', name: 'paddingTop', value: baseSectionStyles.paddingTop ? String(baseSectionStyles.paddingTop) : '' },
-        { label: 'Padding Right', type: 'text', name: 'paddingRight', value: baseSectionStyles.paddingRight ? String(baseSectionStyles.paddingRight) : '' },
-        { label: 'Padding Bottom', type: 'text', name: 'paddingBottom', value: baseSectionStyles.paddingBottom ? String(baseSectionStyles.paddingBottom) : '' },
-        { label: 'Margin', type: 'text', name: 'margin', value: baseSectionStyles.margin ? String(baseSectionStyles.margin) : '' },
-        { label: 'Margin Left', type: 'text', name: 'marginLeft', value: baseSectionStyles.marginLeft ? String(baseSectionStyles.marginLeft) : '' },
-        { label: 'Margin Top', type: 'text', name: 'marginTop', value: baseSectionStyles.marginTop ? String(baseSectionStyles.marginTop) : '' },
-        { label: 'Margin Right', type: 'text', name: 'marginRight', value: baseSectionStyles.marginRight ? String(baseSectionStyles.marginRight) : '' },
-        { label: 'Margin Bottom', type: 'text', name: 'marginBottom', value: baseSectionStyles.marginBottom ? String(baseSectionStyles.marginBottom) : '' },
-        { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseSectionStyles.boxShadow ? String(baseSectionStyles.boxShadow) : '' },
-        { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseSectionStyles.borderRadius ? String(baseSectionStyles.borderRadius) : '' },
-        { label: 'Text Align', type: 'text', name: 'textAlign', value: baseSectionStyles.textAlign ? String(baseSectionStyles.textAlign) : '' },
-        { label: 'Display', type: 'text', name: 'display', value: baseSectionStyles.display ? String(baseSectionStyles.display) : '' },
-        { label: 'Flex Direction', type: 'text', name: 'flexDirection', value: baseSectionStyles.flexDirection ? String(baseSectionStyles.flexDirection) : '' },
-        { label: 'Justify Content', type: 'text', name: 'justifyContent', value: baseSectionStyles.justifyContent ? String(baseSectionStyles.justifyContent) : '' },
-        { label: 'Align Items', type: 'text', name: 'alignItems', value: baseSectionStyles.alignItems ? String(baseSectionStyles.alignItems) : '' },
-        { label: 'Gap', type: 'text', name: 'gap', value: baseSectionStyles.gap ? String(baseSectionStyles.gap) : '' },
-    ], [baseSectionStyles]);
+        { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
+        { label: 'Height', type: 'text', name: 'height', value: baseStyles.height ? String(baseStyles.height) : '' },
+        { label: 'Width', type: 'text', name: 'width', value: baseStyles.width ? String(baseStyles.width) : '' },
+        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '' },
+        { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '' },
+        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
+        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
+        { label: 'Padding Left', type: 'text', name: 'paddingLeft', value: baseStyles.paddingLeft ? String(baseStyles.paddingLeft) : '' },
+        { label: 'Padding Top', type: 'text', name: 'paddingTop', value: baseStyles.paddingTop ? String(baseStyles.paddingTop) : '' },
+        { label: 'Padding Right', type: 'text', name: 'paddingRight', value: baseStyles.paddingRight ? String(baseStyles.paddingRight) : '' },
+        { label: 'Padding Bottom', type: 'text', name: 'paddingBottom', value: baseStyles.paddingBottom ? String(baseStyles.paddingBottom) : '' },
+        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
+        { label: 'Margin Left', type: 'text', name: 'marginLeft', value: baseStyles.marginLeft ? String(baseStyles.marginLeft) : '' },
+        { label: 'Margin Top', type: 'text', name: 'marginTop', value: baseStyles.marginTop ? String(baseStyles.marginTop) : '' },
+        { label: 'Margin Right', type: 'text', name: 'marginRight', value: baseStyles.marginRight ? String(baseStyles.marginRight) : '' },
+        { label: 'Margin Bottom', type: 'text', name: 'marginBottom', value: baseStyles.marginBottom ? String(baseStyles.marginBottom) : '' },
+        { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseStyles.boxShadow ? String(baseStyles.boxShadow) : '' },
+        { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseStyles.borderRadius ? String(baseStyles.borderRadius) : '' },
+        { label: 'Text Align', type: 'text', name: 'textAlign', value: baseStyles.textAlign ? String(baseStyles.textAlign) : '' },
+        { label: 'Display', type: 'text', name: 'display', value: baseStyles.display ? String(baseStyles.display) : '' },
+        { label: 'Flex Direction', type: 'text', name: 'flexDirection', value: baseStyles.flexDirection ? String(baseStyles.flexDirection) : '' },
+        { label: 'Justify Content', type: 'text', name: 'justifyContent', value: baseStyles.justifyContent ? String(baseStyles.justifyContent) : '' },
+        { label: 'Align Items', type: 'text', name: 'alignItems', value: baseStyles.alignItems ? String(baseStyles.alignItems) : '' },
+        { label: 'Gap', type: 'text', name: 'gap', value: baseStyles.gap ? String(baseStyles.gap) : '' },
+    ], [baseStyles]);
 
 
     const combinedMainStyles = {
         height: "10vh",
 
         border: '1px dashed red',
-        backgroundColor: isOver ? '#C5CCD4' : baseSectionStyles.backgroundColor,
-        ...baseSectionStyles,
+        backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
+        ...baseStyles,
     };
+    const [childrenData, setChildrenData] = useState<Record<string, { html: string, css: string }>>({});
 
+    const handleChildUpdate = useCallback((childId: string, html: string, css: string) => {
+        setChildrenData(prevData => ({
+            ...prevData,
+            [childId]: { html, css }
+        }));
+    }, []);
+
+    const handleChildRemove = useCallback((childId: string) => {
+        setChildrenData(prevData => {
+            const newData = { ...prevData };
+            delete newData[childId];
+            return newData;
+        });
+    }, []);
+
+    useEffect(() => {
+        let mergedChildrenHTML = '';
+        let mergedChildrenCSS = '';
+        Object.values(childrenData).forEach(data => {
+            mergedChildrenHTML += data.html;
+            mergedChildrenCSS += data.css;
+        });
+
+        const htmlString = `<main class="${droppableMainid}">\n${mergedChildrenHTML}\n</main>`;
+        const cssString = `
+      .${droppableMainid} {
+          ${Object.entries(baseStyles)
+                .map(([key, value]) => `${key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}: ${value};`)
+                .join('\n  ')}
+      }
+      ${mergedChildrenCSS}
+      `;
+
+        onUpdate(droppableMainid, htmlString, cssString);
+    }, [baseStyles, childrenData, droppableMainid, onUpdate]);
 
     const openContextMenu = (event: React.MouseEvent<HTMLSpanElement>) => {
         if (event.target === event.currentTarget) {
@@ -105,6 +146,34 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
             const contextMenu = document.createElement('div');
             currentContextMenu = contextMenu;
             contextMenu.className = 'contextMenu';
+            contextMenu.style.cursor = 'move';
+
+            // Add draggable functionality
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            const onMouseDown = (e: MouseEvent) => {
+                isDragging = true;
+                offsetX = e.clientX - contextMenu.getBoundingClientRect().left;
+                offsetY = e.clientY - contextMenu.getBoundingClientRect().top;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e: MouseEvent) => {
+                if (isDragging) {
+                    contextMenu.style.left = `${e.clientX - offsetX}px`;
+                    contextMenu.style.top = `${e.clientY - offsetY}px`;
+                }
+            };
+
+            const onMouseUp = () => {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+            contextMenu.addEventListener('mousedown', onMouseDown);
 
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Remove';
@@ -149,6 +218,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
                     dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
+                onRemove(droppableMainid)
                 currentContextMenu = null;
             });
 
@@ -180,7 +250,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
                 input.addEventListener('input', (e) => {
                     const target = e.target as HTMLInputElement;
                     const newValue = target.value;
-                    setbaseSectionStyles((prevStyles) => ({
+                    setbaseStyles((prevStyles) => ({
                         ...prevStyles,
                         [name]: newValue
                     }));
@@ -200,6 +270,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
             contextMenu.appendChild(styleForm);
             document.body.appendChild(contextMenu);
 
+            // Set initial position
             const posX = event.clientX;
             const posY = event.clientY;
 
@@ -207,6 +278,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
             contextMenu.style.top = `${posY}px`;
             contextMenu.style.left = `${posX}px`;
 
+            // Hide context menu when clicking outside
             const handleClickOutside = (e: MouseEvent) => {
                 if (!contextMenu.contains(e.target as Node)) {
                     contextMenu.remove();
@@ -214,7 +286,6 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
                     currentContextMenu = null;
                 }
             };
-
             document.addEventListener('click', handleClickOutside);
         }
     }
@@ -252,7 +323,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
                         input.addEventListener('input', (e) => {
                             const target = e.target as HTMLInputElement;
                             const newValue = target.value;
-                            setbaseSectionStyles((prevStyles) => ({
+                            setbaseStyles((prevStyles) => ({
                                 ...prevStyles,
                                 [option.name]: newValue
                             }));
@@ -281,15 +352,50 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
         }
         switch (name) {
             case 'div':
-                return <DivComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <DivComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <SpanComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'section':
-                return <SectionComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <SectionComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <HeaderComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <FooterComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'main':
                 return (
                     <MainComponent
@@ -298,30 +404,134 @@ const MainComponent: React.FC<MainComponentProps> = ({ childIndex, parentID, dep
                         parentID={droppableMainid}
                         depth={depth + 1}
                         maxDepth={maxDepth}
+                        onUpdate={handleChildUpdate}
+                        onRemove={handleChildRemove}
                     />
                 );
             case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <ArticleComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'img':
+                return <ImageComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'video':
+                return <VideoComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'audio':
+                return <AudioComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'aside':
-                return <AsideComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <AsideComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <NavComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'paragraph':
+                return <ParagraphComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <UlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'ol':
-                return <OlComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <OlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'dl':
-                return <DlComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
-            case 'fieldset':
-                return <FieldSetComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <DlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+
             case 'form':
-                return <FormComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <FormComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'table':
-                return <TableComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <TableComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'iframe':
-                return <IFrameComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <IFrameComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'figure':
-                return <FigureComponent key={index} childIndex={index} parentID={droppableMainid} depth={depth + 1} />;
+                return <FigureComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableMainid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary

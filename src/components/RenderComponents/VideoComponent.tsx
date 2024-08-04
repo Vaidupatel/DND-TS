@@ -19,49 +19,46 @@ import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 
-interface ButtonComponentProps {
+interface VideoComponentProps {
     childIndex: number;
     parentID: string;
-    draggedItemType: string | null;
     onUpdate: (childId: string, html: string, css: string) => void;
     onRemove: (childId: string) => void;
 }
 
-let currentContextMenu: HTMLDivElement | null = null;
 
-const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID, draggedItemType, onUpdate, onRemove }) => {
+const VideoComponent: React.FC<VideoComponentProps> = ({ childIndex, parentID, onUpdate, onRemove }) => {
     const dispatch = useDispatch();
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [buttonData, setButtonData] = useState({
-        text: 'Click me!',
-        type: 'button',
-        disabled: false,
-        name: '',
-        value: '',
+    const [videoData, setVideoData] = useState({
+        src: 'https://via.placeholder.com/150',
+        width: '150px',
+        height: '150px',
+        controls: true
     });
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
-    // const [children, setChildren] = useState<React.ReactNode[]>([]);
 
-    const buttonId = `droppableButton-${parentID}-${childIndex}`;
+    const videoId = `video-${parentID}-${childIndex}`;
 
     const combinedStyles = {
         ...baseStyles,
+        width: videoData.width,
+        height: videoData.height,
     };
 
     const styleOptions = [
-        { label: 'Width', type: 'text', name: 'width', value: baseStyles.width ? String(baseStyles.width) : '' },
-        { label: 'Height', type: 'text', name: 'height', value: baseStyles.height ? String(baseStyles.height) : '' },
-        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '#ffffff' },
-        { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '#000000' },
-        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
-        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
-        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
         { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
         { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseStyles.borderRadius ? String(baseStyles.borderRadius) : '' },
-        { label: 'Cursor', type: 'text', name: 'cursor', value: baseStyles.cursor ? String(baseStyles.cursor) : '' },
+        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
+        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
+        { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseStyles.boxShadow ? String(baseStyles.boxShadow) : '' },
+        { label: 'Object Fit', type: 'text', name: 'objectFit', value: baseStyles.objectFit ? String(baseStyles.objectFit) : '' },
+        { label: 'Object Position', type: 'text', name: 'objectPosition', value: baseStyles.objectPosition ? String(baseStyles.objectPosition) : '' },
     ];
 
-    const openContextMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    let currentContextMenu: HTMLDivElement | null = null;
+
+    const openContextMenu = (event: React.MouseEvent<HTMLVideoElement>) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -73,7 +70,6 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
         currentContextMenu = contextMenu;
         contextMenu.className = 'contextMenu';
         contextMenu.style.cursor = 'move';
-
         // Add draggable functionality
         let isDragging = false;
         let offsetX = 0;
@@ -100,7 +96,6 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             document.removeEventListener('mouseup', onMouseUp);
         };
         contextMenu.addEventListener('mousedown', onMouseDown);
-
 
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
@@ -143,7 +138,7 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
                 dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
             }
             contextMenu.remove();
-            onRemove(buttonId);
+            onRemove(videoId);
             currentContextMenu = null;
         });
 
@@ -158,7 +153,7 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             setSearchTerm((e.target as HTMLInputElement).value.toLowerCase());
         });
 
-        const createInputField = (labelText: string, inputType: string, name: string, value: string | boolean) => {
+        const createInputField = (labelText: string, inputType: string, name: string, value: string) => {
             const fieldContainer = document.createElement('div');
 
             const label = document.createElement('label');
@@ -169,20 +164,20 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             input.className = 'inputField';
             input.type = inputType;
             input.name = name;
-
-            if (inputType === 'checkbox') {
-                (input as HTMLInputElement).checked = value as boolean;
-            } else {
-                input.value = value as string;
-            }
+            input.value = value;
 
             input.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
-                const newValue = target.type === 'checkbox' ? target.checked : target.value;
-                if (['text', 'type', 'disabled', 'name', 'value'].includes(name)) {
-                    setButtonData((prevData) => ({
+                const newValue = target.value;
+                if (['src', 'width', 'height'].includes(name)) {
+                    setVideoData((prevData) => ({
                         ...prevData,
                         [name]: newValue,
+                    }));
+                } else if (name === 'controls') {
+                    setVideoData((prevData) => ({
+                        ...prevData,
+                        [name]: !prevData[name],
                     }));
                 } else {
                     setBaseStyles((prevStyles) => ({
@@ -197,12 +192,29 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             styleForm.appendChild(fieldContainer);
         };
 
-        // Add button-specific fields
-        createInputField('Button Text', 'text', 'text', buttonData.text);
-        createInputField('Button Type', 'text', 'type', buttonData.type);
-        createInputField('Disabled', 'checkbox', 'disabled', buttonData.disabled);
-        createInputField('Name', 'text', 'name', buttonData.name);
-        createInputField('Value', 'text', 'value', buttonData.value);
+        // Add video-specific fields
+        createInputField('Video URL', 'text', 'src', videoData.src);
+        createInputField('Width', 'text', 'width', videoData.width);
+        createInputField('Height', 'text', 'height', videoData.height);
+
+        // Add control toggle
+        const controlsFieldContainer = document.createElement('div');
+        const controlsLabel = document.createElement('label');
+        controlsLabel.textContent = 'Show Controls';
+        controlsLabel.htmlFor = 'controls';
+        const controlsCheckbox = document.createElement('input');
+        controlsCheckbox.type = 'checkbox';
+        controlsCheckbox.id = 'controls';
+        controlsCheckbox.checked = videoData.controls;
+        controlsCheckbox.addEventListener('change', (e) => {
+            setVideoData((prevData) => ({
+                ...prevData,
+                controls: (e.target as HTMLInputElement).checked,
+            }));
+        });
+        controlsFieldContainer.appendChild(controlsLabel);
+        controlsFieldContainer.appendChild(controlsCheckbox);
+        styleForm.appendChild(controlsFieldContainer);
 
         styleOptions
             .filter(option => option.label.toLowerCase().includes(searchTerm))
@@ -210,11 +222,8 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
                 createInputField(option.label, option.type, option.name, option.value);
             });
 
-
-
         contextMenu.appendChild(removeButton);
         contextMenu.appendChild(styleForm);
-        // contextMenu.appendChild(addChildButton);
         document.body.appendChild(contextMenu);
 
         // Set initial position
@@ -238,53 +247,35 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
     };
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (currentContextMenu && !currentContextMenu.contains(event.target as Node)) {
-                currentContextMenu.remove();
-                currentContextMenu = null;
-            }
-        };
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+        const videoElement = document.getElementById(videoId) as HTMLVideoElement;
+        if (videoElement) {
+            videoElement.src = videoData.src;
+        }
+    }, [videoData.src, videoId]);
 
     useEffect(() => {
         const htmlString = `
-            <button 
-                class="${buttonId}" 
-                type="${buttonData.type}"
-                ${buttonData.disabled ? 'disabled' : ''}
-                ${buttonData.name ? `name="${buttonData.name}"` : ''}
-                ${buttonData.value ? `value="${buttonData.value}"` : ''}
-            >
-                ${buttonData.text}
-                
-            return '';
-        }).join('')}
-            </button>
+            <video class="${videoId}" src="${videoData.src}" width="${videoData.width}" height="${videoData.height}" ${videoData.controls ? 'controls' : ''}></video>
         `;
         const cssString = `
-            .${buttonId} {
-                ${Object.entries(baseStyles).map(([key, value]) => `${key}: ${value};`).join('\n                ')}
+            .${videoId} {
+                ${Object.entries(baseStyles).map(([key, value]) => `${key}: ${value};`).join(' ')}
             }
         `;
-        onUpdate(buttonId, htmlString, cssString);
-    }, [buttonData, baseStyles, onUpdate, buttonId]);
+        onUpdate(videoId, htmlString, cssString);
+    }, [videoData, baseStyles, onUpdate, videoId]);
 
     return (
-        <button
-            className={buttonId}
-            id={buttonId}
+        <video
+            className={videoId}
+            id={videoId}
             style={combinedStyles}
-            type={buttonData.type as "button" | "submit" | "reset"}
-            disabled={buttonData.disabled}
-            name={buttonData.name}
-            value={buttonData.value}
+            controls={videoData.controls}
             onContextMenu={openContextMenu}
-        >
-            {buttonData.text}
-        </button>
+
+        />
+
     );
 };
 
-export default ButtonComponent;
+export default VideoComponent;

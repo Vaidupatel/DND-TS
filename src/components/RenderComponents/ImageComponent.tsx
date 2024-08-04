@@ -19,49 +19,45 @@ import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 
-interface ButtonComponentProps {
+interface ImageComponentProps {
     childIndex: number;
     parentID: string;
-    draggedItemType: string | null;
     onUpdate: (childId: string, html: string, css: string) => void;
     onRemove: (childId: string) => void;
 }
 
 let currentContextMenu: HTMLDivElement | null = null;
 
-const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID, draggedItemType, onUpdate, onRemove }) => {
+const ImageComponent: React.FC<ImageComponentProps> = ({ childIndex, parentID, onUpdate, onRemove }) => {
     const dispatch = useDispatch();
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [buttonData, setButtonData] = useState({
-        text: 'Click me!',
-        type: 'button',
-        disabled: false,
-        name: '',
-        value: '',
+    const [imageData, setImageData] = useState({
+        src: 'https://via.placeholder.com/150',
+        alt: 'Placeholder image',
+        width: '150px',
+        height: '150px',
     });
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
-    // const [children, setChildren] = useState<React.ReactNode[]>([]);
 
-    const buttonId = `droppableButton-${parentID}-${childIndex}`;
+    const imageId = `image-${parentID}-${childIndex}`;
 
     const combinedStyles = {
         ...baseStyles,
+        width: imageData.width,
+        height: imageData.height,
     };
 
     const styleOptions = [
-        { label: 'Width', type: 'text', name: 'width', value: baseStyles.width ? String(baseStyles.width) : '' },
-        { label: 'Height', type: 'text', name: 'height', value: baseStyles.height ? String(baseStyles.height) : '' },
-        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '#ffffff' },
-        { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '#000000' },
-        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
-        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
-        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
         { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
         { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseStyles.borderRadius ? String(baseStyles.borderRadius) : '' },
-        { label: 'Cursor', type: 'text', name: 'cursor', value: baseStyles.cursor ? String(baseStyles.cursor) : '' },
+        { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
+        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
+        { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseStyles.boxShadow ? String(baseStyles.boxShadow) : '' },
+        { label: 'Object Fit', type: 'text', name: 'objectFit', value: baseStyles.objectFit ? String(baseStyles.objectFit) : '' },
+        { label: 'Object Position', type: 'text', name: 'objectPosition', value: baseStyles.objectPosition ? String(baseStyles.objectPosition) : '' },
     ];
 
-    const openContextMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const openContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -100,7 +96,6 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             document.removeEventListener('mouseup', onMouseUp);
         };
         contextMenu.addEventListener('mousedown', onMouseDown);
-
 
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
@@ -143,11 +138,12 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
                 dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
             }
             contextMenu.remove();
-            onRemove(buttonId);
+            onRemove(imageId)
             currentContextMenu = null;
         });
 
         const styleForm = document.createElement('form');
+        styleForm.className = 'style-form';
 
         const searchInput = document.createElement('input');
         searchInput.type = 'text';
@@ -158,7 +154,7 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             setSearchTerm((e.target as HTMLInputElement).value.toLowerCase());
         });
 
-        const createInputField = (labelText: string, inputType: string, name: string, value: string | boolean) => {
+        const createInputField = (labelText: string, inputType: string, name: string, value: string) => {
             const fieldContainer = document.createElement('div');
 
             const label = document.createElement('label');
@@ -169,18 +165,13 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             input.className = 'inputField';
             input.type = inputType;
             input.name = name;
-
-            if (inputType === 'checkbox') {
-                (input as HTMLInputElement).checked = value as boolean;
-            } else {
-                input.value = value as string;
-            }
+            input.value = value;
 
             input.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
-                const newValue = target.type === 'checkbox' ? target.checked : target.value;
-                if (['text', 'type', 'disabled', 'name', 'value'].includes(name)) {
-                    setButtonData((prevData) => ({
+                const newValue = target.value;
+                if (['src', 'alt', 'width', 'height'].includes(name)) {
+                    setImageData((prevData) => ({
                         ...prevData,
                         [name]: newValue,
                     }));
@@ -197,24 +188,20 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             styleForm.appendChild(fieldContainer);
         };
 
-        // Add button-specific fields
-        createInputField('Button Text', 'text', 'text', buttonData.text);
-        createInputField('Button Type', 'text', 'type', buttonData.type);
-        createInputField('Disabled', 'checkbox', 'disabled', buttonData.disabled);
-        createInputField('Name', 'text', 'name', buttonData.name);
-        createInputField('Value', 'text', 'value', buttonData.value);
+        // Add image-specific fields
+        createInputField('Image URL', 'text', 'src', imageData.src);
+        createInputField('Alt Text', 'text', 'alt', imageData.alt);
+        createInputField('Width', 'text', 'width', imageData.width);
+        createInputField('Height', 'text', 'height', imageData.height);
 
+        // Add style fields
         styleOptions
             .filter(option => option.label.toLowerCase().includes(searchTerm))
-            .forEach(option => {
-                createInputField(option.label, option.type, option.name, option.value);
-            });
-
-
+            .forEach(option => createInputField(option.label, option.type, option.name, option.value));
 
         contextMenu.appendChild(removeButton);
+        contextMenu.appendChild(searchInput);
         contextMenu.appendChild(styleForm);
-        // contextMenu.appendChild(addChildButton);
         document.body.appendChild(contextMenu);
 
         // Set initial position
@@ -238,53 +225,28 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
     };
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (currentContextMenu && !currentContextMenu.contains(event.target as Node)) {
-                currentContextMenu.remove();
-                currentContextMenu = null;
-            }
-        };
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        const htmlString = `
-            <button 
-                class="${buttonId}" 
-                type="${buttonData.type}"
-                ${buttonData.disabled ? 'disabled' : ''}
-                ${buttonData.name ? `name="${buttonData.name}"` : ''}
-                ${buttonData.value ? `value="${buttonData.value}"` : ''}
-            >
-                ${buttonData.text}
-                
-            return '';
-        }).join('')}
-            </button>
-        `;
+        const htmlString = `<img id="${imageId}" src="${imageData.src}" alt="${imageData.alt}" width="${imageData.width}" height="${imageData.height}" />`;
         const cssString = `
-            .${buttonId} {
-                ${Object.entries(baseStyles).map(([key, value]) => `${key}: ${value};`).join('\n                ')}
-            }
-        `;
-        onUpdate(buttonId, htmlString, cssString);
-    }, [buttonData, baseStyles, onUpdate, buttonId]);
+      #${imageId} {
+        ${Object.entries(combinedStyles)
+                .map(([key, value]) => `${key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}: ${value};`)
+                .join('\n  ')}
+      }
+    `;
+
+        onUpdate(imageId, htmlString, cssString);
+    }, [imageData, baseStyles, imageId, onUpdate]);
 
     return (
-        <button
-            className={buttonId}
-            id={buttonId}
-            style={combinedStyles}
-            type={buttonData.type as "button" | "submit" | "reset"}
-            disabled={buttonData.disabled}
-            name={buttonData.name}
-            value={buttonData.value}
+        <img
             onContextMenu={openContextMenu}
-        >
-            {buttonData.text}
-        </button>
+            title='Image'
+            id={imageId}
+            src={imageData.src}
+            alt={imageData.alt}
+            style={combinedStyles}
+        />
     );
 };
 
-export default ButtonComponent;
+export default ImageComponent;

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
@@ -32,16 +32,21 @@ import NavComponent from './NavComponent ';
 import OlComponent from './OlComponent ';
 import ArticleComponent from './ArticleComponent';
 import DlComponent from './DlComponent ';
-import FieldSetComponent from './FieldSetComponent ';
 import FormComponent from './FormComponent ';
 import TableComponent from './TableComponent ';
 import IFrameComponent from './IFrameComponent ';
 import FigureComponent from './FigureComponent ';
 import UlComponent from './UlComponent ';
+import AudioComponent from './AudioComponent';
+import VideoComponent from './VideoComponent';
+import ImageComponent from './ImageComponent';
+import ParagraphComponent from './ParagraphComponent';
 
 interface LiComponentProps {
     childIndex: number;
     parentID: string;
+    onUpdate: (childId: string, html: string, css: string) => void;
+    onRemove: (childId: string) => void;
     depth: number;
     maxDepth?: number;
     draggedItemType: string | null;
@@ -49,7 +54,7 @@ interface LiComponentProps {
 }
 let currentContextMenu: HTMLDivElement | null = null;
 
-const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, draggedItemType }) => {
+const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, onUpdate, onRemove, draggedItemType }) => {
     const droppableLiid = `droppableLi-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setLiNodeRef } = useDroppable({
@@ -59,11 +64,12 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
 
     const dispatch = useDispatch();
+    const [liTextValue, setLiTextValue] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState<string>('');
 
     const combinedStyles = {
-        height: "2vh",
-
+        height: "auto",
+        width: "5rem",
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,
@@ -76,6 +82,8 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
         { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '' },
         { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '' },
         { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
+        { label: 'font Weight', type: 'text', name: 'fontWeight', value: baseStyles.fontWeight ? String(baseStyles.fontWeight) : '' },
+        { label: 'font Style', type: 'text', name: 'fontStyle', value: baseStyles.fontStyle ? String(baseStyles.fontStyle) : '' },
         { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
         { label: 'Padding Left', type: 'text', name: 'paddingLeft', value: baseStyles.paddingLeft ? String(baseStyles.paddingLeft) : '' },
         { label: 'Padding Top', type: 'text', name: 'paddingTop', value: baseStyles.paddingTop ? String(baseStyles.paddingTop) : '' },
@@ -87,14 +95,54 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
         { label: 'Margin Right', type: 'text', name: 'marginRight', value: baseStyles.marginRight ? String(baseStyles.marginRight) : '' },
         { label: 'Margin Bottom', type: 'text', name: 'marginBottom', value: baseStyles.marginBottom ? String(baseStyles.marginBottom) : '' },
         { label: 'Box Shadow', type: 'text', name: 'boxShadow', value: baseStyles.boxShadow ? String(baseStyles.boxShadow) : '' },
+        { label: 'list Style Type', type: 'text', name: 'listStyleType', value: baseStyles.listStyleType ? String(baseStyles.listStyleType) : '' },
+        { label: 'list Style Position', type: 'text', name: 'listStylePosition', value: baseStyles.listStylePosition ? String(baseStyles.listStylePosition) : '' },
+        { label: 'line Height', type: 'text', name: 'lineHeight', value: baseStyles.lineHeight ? String(baseStyles.lineHeight) : '' },
         { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseStyles.borderRadius ? String(baseStyles.borderRadius) : '' },
         { label: 'Text Align', type: 'text', name: 'textAlign', value: baseStyles.textAlign ? String(baseStyles.textAlign) : '' },
+        { label: 'Text Decoration', type: 'text', name: 'textDecoration', value: baseStyles.textDecoration ? String(baseStyles.textDecoration) : '' },
         { label: 'Display', type: 'text', name: 'display', value: baseStyles.display ? String(baseStyles.display) : '' },
-        { label: 'Flex Direction', type: 'text', name: 'flexDirection', value: baseStyles.flexDirection ? String(baseStyles.flexDirection) : '' },
-        { label: 'Justify Content', type: 'text', name: 'justifyContent', value: baseStyles.justifyContent ? String(baseStyles.justifyContent) : '' },
-        { label: 'Align Items', type: 'text', name: 'alignItems', value: baseStyles.alignItems ? String(baseStyles.alignItems) : '' },
-        { label: 'Gap', type: 'text', name: 'gap', value: baseStyles.gap ? String(baseStyles.gap) : '' },
+        { label: 'Position', type: 'text', name: 'position', value: baseStyles.position ? String(baseStyles.position) : '' },
     ], [baseStyles]);
+
+    const [childrenData, setChildrenData] = useState<Record<string, { html: string, css: string }>>({});
+
+    const handleChildUpdate = useCallback((childId: string, html: string, css: string) => {
+        setChildrenData(prevData => ({
+            ...prevData,
+            [childId]: { html, css }
+        }));
+    }, []);
+
+    const handleChildRemove = useCallback((childId: string) => {
+        setChildrenData(prevData => {
+            const newData = { ...prevData };
+            delete newData[childId];
+            return newData;
+        });
+    }, []);
+
+    useEffect(() => {
+        let mergedChildrenHTML = '';
+        let mergedChildrenCSS = '';
+        Object.values(childrenData).forEach(data => {
+            mergedChildrenHTML += data.html;
+            mergedChildrenCSS += data.css;
+        });
+
+        const htmlString = `<li class="${droppableLiid}">\n ${liTextValue} ${mergedChildrenHTML}\n</li>`;
+        const cssString = `
+.${droppableLiid} {
+    ${styleOptions
+                .filter(option => baseStyles[option.name as keyof React.CSSProperties])
+                .map(option => `${option.name.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}: ${baseStyles[option.name as keyof React.CSSProperties]};`)
+                .join('\n    ')}
+}
+${mergedChildrenCSS}
+        `.trim();
+
+        onUpdate(droppableLiid, htmlString, cssString);
+    }, [baseStyles, childrenData, droppableLiid, liTextValue, onUpdate, styleOptions]);
 
     const openContextMenu = (event: React.MouseEvent<HTMLLIElement>) => {
         if (event.target === event.currentTarget) {
@@ -152,11 +200,21 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
                     dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
+                onRemove(droppableLiid)
                 currentContextMenu = null;
             });
 
             const styleForm = document.createElement('form');
             styleForm.className = 'style-form';
+
+            const liText = document.createElement('input');
+            liText.type = 'text';
+            liText.placeholder = 'Enter the Text for list';
+            liText.className = 'inputField';
+            liText.value = liTextValue;
+            liText.addEventListener('input', (e) => {
+                setLiTextValue((e.target as HTMLInputElement).value);
+            });
 
             const searchInput = document.createElement('input');
             searchInput.type = 'text';
@@ -199,6 +257,7 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
                 .forEach(option => createInputField(option.label, option.type, option.name, option.value));
 
             contextMenu.appendChild(removeButton);
+            contextMenu.appendChild(liText);
             contextMenu.appendChild(searchInput);
             contextMenu.appendChild(styleForm);
             document.body.appendChild(contextMenu);
@@ -228,6 +287,7 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
                 while (styleForm.firstChild) {
                     styleForm.removeChild(styleForm.firstChild);
                 }
+
                 const searchInput = document.createElement('input');
                 searchInput.type = 'text';
                 searchInput.placeholder = 'Search styles...';
@@ -293,40 +353,179 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
                         childIndex={index}
                         parentID={droppableLiid}
                         depth={depth + 1}
+                        onUpdate={handleChildUpdate}
+                        onRemove={handleChildRemove}
                     />
                 );
             case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <SpanComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'section':
-                return <SectionComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} maxDepth={maxDepth} />;
+                return <SectionComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                    maxDepth={maxDepth} />;
             case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <HeaderComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <FooterComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'video':
+                return <VideoComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'img':
+                return <ImageComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'audio':
+                return <AudioComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'main':
-                return <MainComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <MainComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <ArticleComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'aside':
-                return <AsideComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <AsideComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <NavComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'paragraph':
+                return <ParagraphComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} draggedItemType={draggedItemType} />;
+                return <UlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                    draggedItemType={draggedItemType} />;
             case 'ol':
-                return <OlComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <OlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'dl':
-                return <DlComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
-            case 'fieldset':
-                return <FieldSetComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <DlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+
             case 'form':
-                return <FormComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <FormComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'table':
-                return <TableComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <TableComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'iframe':
-                return <IFrameComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <IFrameComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'figure':
-                return <FigureComponent key={index} childIndex={index} parentID={droppableLiid} depth={depth + 1} />;
+                return <FigureComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableLiid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary
@@ -340,6 +539,7 @@ const LiComponent: React.FC<LiComponentProps> = ({ childIndex, parentID, depth, 
             style={combinedStyles}
             onContextMenu={openContextMenu}
         >
+            {liTextValue}
             {liChildren.map((name: string, index: number) => renderComponent(name, index))}
         </li>
     );

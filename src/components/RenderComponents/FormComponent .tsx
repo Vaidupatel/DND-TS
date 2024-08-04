@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDroppable } from '@dnd-kit/core';
@@ -26,23 +26,31 @@ import ButtonComponent from './ButtonComponent';
 import SelectComponent from './SelectComponent';
 import InputComponent from './InputComponent';
 import TexeAreaComponent from './TextAreaComponent';
+import ImageComponent from './ImageComponent';
+import VideoComponent from './VideoComponent';
+import AudioComponent from './AudioComponent';
+import RadioComponent from './RadioComponent';
+import CheckboxComponent from './CheckBoxComponent';
+import ParagraphComponent from './ParagraphComponent';
 
 interface FormComponentProps {
     childIndex: number;
     parentID: string;
+    onUpdate: (childId: string, html: string, css: string) => void;
+    onRemove: (childId: string) => void;
     depth: number;
     maxDepth?: number;
     draggedItemType: string | null;
 }
 let currentContextMenu: HTMLDivElement | null = null;
 
-const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, draggedItemType }) => {
+const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, onUpdate, onRemove, draggedItemType }) => {
     const droppableFormid = `droppableForm-${parentID}-${childIndex}`;
 
     const { isOver, setNodeRef: setFormNodeRef } = useDroppable({
         id: droppableFormid,
         data: {
-            accepts: ["input", "button", "select", "textarea", "fieldset", "output", "progress", "object", "div", "ul", "ol", "section", "header", "footer", "article", "aside", "nav", "main"],
+            accepts: ["input", "button", "dropdown", "radio", "checkbox", "paragraph", "textarea", "fieldset", "output", "progress", "object", "div", "ul", "ol", "section", "header", "footer", "article", "aside", "nav", "main"],
             childIndex,
             parentID,
         },
@@ -58,12 +66,49 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
 
         border: '1px dashed red',
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
-        cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ["input",
-            "button", "select", "textarea", "label", "fieldset", "output", "progress", "object", "div", "ul", "ol", "section", "header", "footer", "article", "aside", "nav", "main"].includes(draggedItemType))
+        cursor: !isOver ? 'default' : isOver && (draggedItemType !== null && ["input", "button", "dropdown", "radio", "checkbox", "paragraph", "textarea", "fieldset", "output", "progress", "object", "div", "ul", "ol", "section", "header", "footer", "article", "aside", "nav", "main"].includes(draggedItemType))
             ? 'default'
             : 'not-allowed',
         ...baseStyles,
     };
+
+    const [childrenData, setChildrenData] = useState<Record<string, { html: string, css: string }>>({});
+
+    const handleChildUpdate = useCallback((childId: string, html: string, css: string) => {
+        setChildrenData(prevData => ({
+            ...prevData,
+            [childId]: { html, css }
+        }));
+    }, []);
+
+    const handleChildRemove = useCallback((childId: string) => {
+        setChildrenData(prevData => {
+            const newData = { ...prevData };
+            delete newData[childId];
+            return newData;
+        });
+    }, []);
+
+    useEffect(() => {
+        let mergedChildrenHTML = '';
+        let mergedChildrenCSS = '';
+        Object.values(childrenData).forEach(data => {
+            mergedChildrenHTML += data.html;
+            mergedChildrenCSS += data.css;
+        });
+
+        const htmlString = `<form class="${droppableFormid}">\n${mergedChildrenHTML}\n</form>`;
+        const cssString = `
+    .${droppableFormid} {
+        ${Object.entries(baseStyles)
+                .map(([key, value]) => `${key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}: ${value};`)
+                .join('\n  ')}
+    }
+    ${mergedChildrenCSS}
+    `;
+
+        onUpdate(droppableFormid, htmlString, cssString);
+    }, [baseStyles, childrenData, droppableFormid, onUpdate]);
 
     const styleOptions = useMemo(() => [
         { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
@@ -101,9 +146,40 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
                 currentContextMenu.remove();
             }
 
+
             const contextMenu = document.createElement('div');
             currentContextMenu = contextMenu;
+            contextMenu.style.cursor = 'move';
             contextMenu.className = 'contextMenu';
+
+
+            // Add draggable functionality
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            const onMouseDown = (e: MouseEvent) => {
+                isDragging = true;
+                offsetX = e.clientX - contextMenu.getBoundingClientRect().left;
+                offsetY = e.clientY - contextMenu.getBoundingClientRect().top;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e: MouseEvent) => {
+                if (isDragging) {
+                    contextMenu.style.left = `${e.clientX - offsetX}px`;
+                    contextMenu.style.top = `${e.clientY - offsetY}px`;
+                }
+            };
+
+            const onMouseUp = () => {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            contextMenu.addEventListener('mousedown', onMouseDown);
 
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Remove';
@@ -148,6 +224,7 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
                     dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
+                onRemove(droppableFormid)
                 currentContextMenu = null;
             });
 
@@ -199,6 +276,7 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
             contextMenu.appendChild(styleForm);
             document.body.appendChild(contextMenu);
 
+            // Set initial position
             const posX = event.clientX;
             const posY = event.clientY;
 
@@ -206,6 +284,7 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
             contextMenu.style.top = `${posY}px`;
             contextMenu.style.left = `${posX}px`;
 
+            // Hide context menu when clicking outside
             const handleClickOutside = (e: MouseEvent) => {
                 if (!contextMenu.contains(e.target as Node)) {
                     contextMenu.remove();
@@ -213,6 +292,7 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
                     currentContextMenu = null;
                 }
             };
+
 
             document.addEventListener('click', handleClickOutside);
         }
@@ -284,16 +364,94 @@ const FormComponent: React.FC<FormComponentProps> = ({ childIndex, parentID, dep
         switch (name) {
             case 'input':
                 return (
-                    <InputComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />
+                    <InputComponent
+                        key={index}
+                        childIndex={index}
+                        parentID={droppableFormid}
+                        draggedItemType={draggedItemType}
+                        onUpdate={handleChildUpdate}
+                        onRemove={(childId) => {
+                            handleChildRemove(childId);
+                            dispatch(removeFormChild({ FormId: droppableFormid, componentIndex: index }));
+                        }}
+                    />
                 );
             case 'textarea':
-                return (
-                    <TexeAreaComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />
-                );
+                return <TexeAreaComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    draggedItemType={draggedItemType}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+
+            case 'paragraph':
+                return <ParagraphComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'img':
+                return <ImageComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'video':
+                return <VideoComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'audio':
+                return <AudioComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'button':
-                return <ButtonComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />;
-            case 'select':
-                return <SelectComponent key={index} childIndex={index} parentID={droppableFormid} draggedItemType={draggedItemType} />;
+                return <ButtonComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    draggedItemType={draggedItemType}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'dropdown':
+                return <SelectComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'radio':
+                return <RadioComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'checkbox':
+                return <CheckboxComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableFormid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
 
             // Add cases for other components
             default:

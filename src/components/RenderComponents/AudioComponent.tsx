@@ -19,30 +19,29 @@ import { removeIFrameChild } from '../../store/slices/iFrameChildSlice';
 import { removeFigureChild } from '../../store/slices/figureChildSlice';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
 
-interface ButtonComponentProps {
+interface AudioComponentProps {
     childIndex: number;
     parentID: string;
-    draggedItemType: string | null;
     onUpdate: (childId: string, html: string, css: string) => void;
     onRemove: (childId: string) => void;
 }
 
 let currentContextMenu: HTMLDivElement | null = null;
 
-const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID, draggedItemType, onUpdate, onRemove }) => {
+const AudioComponent: React.FC<AudioComponentProps> = ({ childIndex, parentID, onUpdate, onRemove }) => {
     const dispatch = useDispatch();
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [buttonData, setButtonData] = useState({
-        text: 'Click me!',
-        type: 'button',
-        disabled: false,
-        name: '',
-        value: '',
+    const [audioData, setAudioData] = useState({
+        src: 'https://example.com/audio.mp3',
+        controls: true,
+        autoplay: false,
+        loop: false,
+        muted: false,
+        preload: 'auto'
     });
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
-    // const [children, setChildren] = useState<React.ReactNode[]>([]);
 
-    const buttonId = `droppableButton-${parentID}-${childIndex}`;
+    const audioId = `audio-${parentID}-${childIndex}`;
 
     const combinedStyles = {
         ...baseStyles,
@@ -50,18 +49,14 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
 
     const styleOptions = [
         { label: 'Width', type: 'text', name: 'width', value: baseStyles.width ? String(baseStyles.width) : '' },
-        { label: 'Height', type: 'text', name: 'height', value: baseStyles.height ? String(baseStyles.height) : '' },
-        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '#ffffff' },
-        { label: 'Color', type: 'text', name: 'color', value: baseStyles.color ? String(baseStyles.color) : '#000000' },
-        { label: 'Font Size', type: 'text', name: 'fontSize', value: baseStyles.fontSize ? String(baseStyles.fontSize) : '' },
-        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
         { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
+        { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
         { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
         { label: 'Border Radius', type: 'text', name: 'borderRadius', value: baseStyles.borderRadius ? String(baseStyles.borderRadius) : '' },
-        { label: 'Cursor', type: 'text', name: 'cursor', value: baseStyles.cursor ? String(baseStyles.cursor) : '' },
+        { label: 'Background Color', type: 'text', name: 'backgroundColor', value: baseStyles.backgroundColor ? String(baseStyles.backgroundColor) : '' },
     ];
 
-    const openContextMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const openContextMenu = (event: React.MouseEvent<HTMLAudioElement>) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -99,8 +94,8 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
         };
-        contextMenu.addEventListener('mousedown', onMouseDown);
 
+        contextMenu.addEventListener('mousedown', onMouseDown);
 
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
@@ -143,7 +138,7 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
                 dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
             }
             contextMenu.remove();
-            onRemove(buttonId);
+            onRemove(audioId);
             currentContextMenu = null;
         });
 
@@ -179,8 +174,8 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             input.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
                 const newValue = target.type === 'checkbox' ? target.checked : target.value;
-                if (['text', 'type', 'disabled', 'name', 'value'].includes(name)) {
-                    setButtonData((prevData) => ({
+                if (['src', 'controls', 'autoplay', 'loop', 'muted', 'preload'].includes(name)) {
+                    setAudioData((prevData) => ({
                         ...prevData,
                         [name]: newValue,
                     }));
@@ -197,12 +192,13 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
             styleForm.appendChild(fieldContainer);
         };
 
-        // Add button-specific fields
-        createInputField('Button Text', 'text', 'text', buttonData.text);
-        createInputField('Button Type', 'text', 'type', buttonData.type);
-        createInputField('Disabled', 'checkbox', 'disabled', buttonData.disabled);
-        createInputField('Name', 'text', 'name', buttonData.name);
-        createInputField('Value', 'text', 'value', buttonData.value);
+        // Add audio-specific fields
+        createInputField('Audio URL', 'text', 'src', audioData.src);
+        createInputField('Controls', 'checkbox', 'controls', audioData.controls);
+        createInputField('Autoplay', 'checkbox', 'autoplay', audioData.autoplay);
+        createInputField('Loop', 'checkbox', 'loop', audioData.loop);
+        createInputField('Muted', 'checkbox', 'muted', audioData.muted);
+        createInputField('Preload', 'text', 'preload', audioData.preload);
 
         styleOptions
             .filter(option => option.label.toLowerCase().includes(searchTerm))
@@ -210,12 +206,10 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
                 createInputField(option.label, option.type, option.name, option.value);
             });
 
-
-
         contextMenu.appendChild(removeButton);
         contextMenu.appendChild(styleForm);
-        // contextMenu.appendChild(addChildButton);
         document.body.appendChild(contextMenu);
+
 
         // Set initial position
         const posX = event.clientX;
@@ -233,7 +227,6 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
                 currentContextMenu = null;
             }
         };
-
         document.addEventListener('click', handleClickOutside);
     };
 
@@ -249,42 +242,46 @@ const ButtonComponent: React.FC<ButtonComponentProps> = ({ childIndex, parentID,
     }, []);
 
     useEffect(() => {
+        const audioElement = document.getElementById(audioId) as HTMLAudioElement;
+        if (audioElement) {
+            audioElement.src = audioData.src;
+        }
+    }, [audioData.src, audioId]);
+
+    useEffect(() => {
         const htmlString = `
-            <button 
-                class="${buttonId}" 
-                type="${buttonData.type}"
-                ${buttonData.disabled ? 'disabled' : ''}
-                ${buttonData.name ? `name="${buttonData.name}"` : ''}
-                ${buttonData.value ? `value="${buttonData.value}"` : ''}
-            >
-                ${buttonData.text}
-                
-            return '';
-        }).join('')}
-            </button>
+            <audio 
+                class="${audioId}" 
+                src="${audioData.src}"
+                ${audioData.controls ? 'controls' : ''}
+                ${audioData.autoplay ? 'autoplay' : ''}
+                ${audioData.loop ? 'loop' : ''}
+                ${audioData.muted ? 'muted' : ''}
+                preload="${audioData.preload}"
+            ></audio>
         `;
         const cssString = `
-            .${buttonId} {
+            .${audioId} {
                 ${Object.entries(baseStyles).map(([key, value]) => `${key}: ${value};`).join('\n                ')}
             }
         `;
-        onUpdate(buttonId, htmlString, cssString);
-    }, [buttonData, baseStyles, onUpdate, buttonId]);
+        onUpdate(audioId, htmlString, cssString);
+    }, [audioData, baseStyles, onUpdate, audioId]);
 
     return (
-        <button
-            className={buttonId}
-            id={buttonId}
+        <audio
+            className={audioId}
+            id={audioId}
             style={combinedStyles}
-            type={buttonData.type as "button" | "submit" | "reset"}
-            disabled={buttonData.disabled}
-            name={buttonData.name}
-            value={buttonData.value}
+            controls={audioData.controls}
+            autoPlay={audioData.autoplay}
+            loop={audioData.loop}
+            muted={audioData.muted}
+            preload={audioData.preload as 'auto' | 'metadata' | 'none'}
             onContextMenu={openContextMenu}
-        >
-            {buttonData.text}
-        </button>
+            src={audioData.src}
+        />
     );
 };
 
-export default ButtonComponent;
+export default AudioComponent;

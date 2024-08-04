@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './ContextMenu.css';
 import { removeComponentName } from '../../store/slices/componentNamesSlice';
@@ -35,24 +35,29 @@ import NavComponent from './NavComponent ';
 import UlComponent from './UlComponent ';
 import OlComponent from './OlComponent ';
 import DlComponent from './DlComponent ';
-import FieldSetComponent from './FieldSetComponent ';
 import FormComponent from './FormComponent ';
 import TableComponent from './TableComponent ';
 import IFrameComponent from './IFrameComponent ';
 import FigureComponent from './FigureComponent ';
+import ImageComponent from './ImageComponent';
+import VideoComponent from './VideoComponent';
+import AudioComponent from './AudioComponent';
+import ParagraphComponent from './ParagraphComponent';
 
 
 
 interface ArticleComponentProps {
     childIndex: number;
     parentID: string;
+    onUpdate: (childId: string, html: string, css: string) => void;
+    onRemove: (childId: string) => void;
     depth: number;
     maxDepth?: number;
 }
 
 let currentContextMenu: HTMLDivElement | null = null;
 
-const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1 }) => {
+const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentID, depth, maxDepth = 1, onUpdate, onRemove }) => {
 
     const droppableArticleid = `droppableArticle-${parentID}-${childIndex}`;
     const { isOver, setNodeRef: setArticleNodeRef } = useDroppable({
@@ -61,16 +66,54 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
 
     const [baseStyles, setBaseStyles] = useState<React.CSSProperties>({});
 
+
     const dispatch = useDispatch();
     const [searchTerm, setSearchTerm] = useState<string>('');
 
     const combinedStyles = {
         height: "10vh",
         border: '1px dashed red',
-
         backgroundColor: isOver ? '#C5CCD4' : baseStyles.backgroundColor,
         ...baseStyles,
     };
+
+    const [childrenData, setChildrenData] = useState<Record<string, { html: string, css: string }>>({});
+
+    const handleChildUpdate = useCallback((childId: string, html: string, css: string) => {
+        setChildrenData(prevData => ({
+            ...prevData,
+            [childId]: { html, css }
+        }));
+    }, []);
+
+    const handleChildRemove = useCallback((childId: string) => {
+        setChildrenData(prevData => {
+            const newData = { ...prevData };
+            delete newData[childId];
+            return newData;
+        });
+    }, []);
+
+    useEffect(() => {
+        let mergedChildrenHTML = '';
+        let mergedChildrenCSS = '';
+        Object.values(childrenData).forEach(data => {
+            mergedChildrenHTML += data.html;
+            mergedChildrenCSS += data.css;
+        });
+
+        const htmlString = `<article class="${droppableArticleid}">\n${mergedChildrenHTML}\n</article>`;
+        const cssString = `
+      .${droppableArticleid} {
+          ${Object.entries(baseStyles)
+                .map(([key, value]) => `${key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}: ${value};`)
+                .join('\n  ')}
+      }
+      ${mergedChildrenCSS}
+      `;
+
+        onUpdate(droppableArticleid, htmlString, cssString);
+    }, [baseStyles, childrenData, droppableArticleid, onUpdate]);
 
     const styleOptions = useMemo(() => [
         { label: 'Border', type: 'text', name: 'border', value: baseStyles.border ? String(baseStyles.border) : '' },
@@ -110,7 +153,36 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
 
             const contextMenu = document.createElement('div');
             currentContextMenu = contextMenu;
+            contextMenu.style.cursor = 'move';
             contextMenu.className = 'contextMenu';
+
+            // Add draggable functionality
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            const onMouseDown = (e: MouseEvent) => {
+                isDragging = true;
+                offsetX = e.clientX - contextMenu.getBoundingClientRect().left;
+                offsetY = e.clientY - contextMenu.getBoundingClientRect().top;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e: MouseEvent) => {
+                if (isDragging) {
+                    contextMenu.style.left = `${e.clientX - offsetX}px`;
+                    contextMenu.style.top = `${e.clientY - offsetY}px`;
+                }
+            };
+
+            const onMouseUp = () => {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            contextMenu.addEventListener('mousedown', onMouseDown);
 
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Remove';
@@ -155,6 +227,7 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
                     dispatch(removeFigureChild({ FigureId: parentID, componentIndex: childIndex }));
                 }
                 contextMenu.remove();
+                onRemove(droppableArticleid)
                 currentContextMenu = null;
             });
 
@@ -206,6 +279,7 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
             contextMenu.appendChild(styleForm);
             document.body.appendChild(contextMenu);
 
+            // Set initial position
             const posX = event.clientX;
             const posY = event.clientY;
 
@@ -213,6 +287,7 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
             contextMenu.style.top = `${posY}px`;
             contextMenu.style.left = `${posX}px`;
 
+            // Hide context menu when clicking outside
             const handleClickOutside = (e: MouseEvent) => {
                 if (!contextMenu.contains(e.target as Node)) {
                     contextMenu.remove();
@@ -220,6 +295,7 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
                     currentContextMenu = null;
                 }
             };
+
 
             document.addEventListener('click', handleClickOutside);
         }
@@ -297,57 +373,194 @@ const ArticleComponent: React.FC<ArticleComponentProps> = ({ childIndex, parentI
                         key={`${droppableArticleid}-${index}`}
                         childIndex={index}
                         parentID={droppableArticleid}
+                        onUpdate={handleChildUpdate}
+                        onRemove={handleChildRemove}
                         depth={depth + 1}
                         maxDepth={maxDepth}
                     />
                 );
             case 'span':
-                return <SpanComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <SpanComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'section':
-                return <SectionComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} maxDepth={maxDepth} />;
+                return <SectionComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1} maxDepth={maxDepth}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'header':
-                return <HeaderComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <HeaderComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'footer':
-                return <FooterComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <FooterComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'main':
-                return <MainComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <MainComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'article':
-                return <ArticleComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <ArticleComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'aside':
-                return <AsideComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <AsideComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'nav':
-                return <NavComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <NavComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'paragraph':
+                return <ParagraphComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'ul':
-                return <UlComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <UlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'ol':
-                return <OlComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <OlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'dl':
-                return <DlComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
-            case 'fieldset':
-                return <FieldSetComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <DlComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+
+            case 'img':
+                return <ImageComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
+            case 'video':
+                return <VideoComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove} />;
+            case 'audio':
+                return <AudioComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />; G
             case 'form':
-                return <FormComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <FormComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'table':
-                return <TableComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <TableComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'iframe':
-                return <IFrameComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <IFrameComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             case 'figure':
-                return <FigureComponent key={index} childIndex={index} parentID={droppableArticleid} depth={depth + 1} />;
+                return <FigureComponent
+                    key={index}
+                    childIndex={index}
+                    parentID={droppableArticleid}
+                    depth={depth + 1}
+                    onUpdate={handleChildUpdate}
+                    onRemove={handleChildRemove}
+                />;
             // Add cases for other components
             default:
                 return null; // Handle default case if necessary
         }
     };
 
-
     return (
-        <div title='Article' className={droppableArticleid} ref={setArticleNodeRef} style={combinedStyles} onContextMenu={openContextMenu}>
+        <article title='Article' className={droppableArticleid} ref={setArticleNodeRef} style={combinedStyles} onContextMenu={openContextMenu}>
 
             {articleChildren.map((name: string, index: number) => renderComponent(name, index))}
 
 
 
-        </div>
+        </article>
     );
 };
 
