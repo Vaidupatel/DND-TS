@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback,  useMemo, useRef, useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
@@ -30,6 +30,7 @@ interface DroppableProps {
 }
 
 const Droppable: React.FC<DroppableProps> = ({ draggedItemType }) => {
+
     const componentNames = useSelector((state: RootState) => state.componentNames.names);
     const memoizedcomponentNames = useMemo(() => componentNames, [componentNames]);
     const [componentsData, setComponentsData] = useState<Record<string, { html: string, css: string }>>({});
@@ -121,6 +122,7 @@ const Droppable: React.FC<DroppableProps> = ({ draggedItemType }) => {
 
 
     const renderComponent = (childIndex: number, name: string, parentID: string) => {
+
         switch (name) {
             case 'div':
                 return <DivComponent

@@ -23,6 +23,7 @@ const componentNamesSlice = createSlice({
     clearComponentNames: (state) => {
       state.names = [];
     },
+
   },
 });
 

@@ -34,6 +34,9 @@ const FirstSection: React.FC = () => {
 
 
     const dispatch = useDispatch<AppDispatch>();
+   
+
+
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
     const dropdownRefs = useRef<Array<React.RefObject<HTMLDivElement>>>([]);

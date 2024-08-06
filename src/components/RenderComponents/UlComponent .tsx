@@ -203,7 +203,7 @@ const UlComponent: React.FC<UlComponentProps> = ({ childIndex, parentID, depth, 
                     dispatch(removeDivChild({ DivId: parentID, componentIndex: childIndex }));
                 } else if (parentID.startsWith('droppableSpan-')) {
                     dispatch(removeSpanChild({ SpanId: parentID, componentIndex: childIndex }));
-                } else if (parentID.startsWith('droppablesection-')) {
+                } else if (parentID.startsWith('droppableSection-')) {
                     dispatch(removeSectionChild({ SectionId: parentID, componentIndex: childIndex }));
                 } else if (parentID.startsWith('droppableHeader-')) {
                     dispatch(removeHeaderChild({ HeaderId: parentID, componentIndex: childIndex }));

@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import './DropdownComponent.css'
 import Draggable from './Draggable';

@@ -29,6 +29,7 @@ const divChildSlice = createSlice({
                 state[DivId] = [];
             }
         },
+        
         setInitialDivChild: () => {
             return initialState
         }

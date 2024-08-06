@@ -43,7 +43,6 @@ import AudioComponent from './AudioComponent';
 import ParagraphComponent from './ParagraphComponent';
 
 
-
 interface DivComponentProps {
   childIndex: number;
   parentID: string;
@@ -111,6 +110,7 @@ const DivComponent: React.FC<DivComponentProps> = ({ childIndex, parentID, depth
     `;
 
     onUpdate(droppableDivid, htmlString, cssString);
+
   }, [baseStyles, childrenData, droppableDivid, onUpdate]);
 
 
