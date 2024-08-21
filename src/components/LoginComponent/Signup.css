@@ -1,0 +1,184 @@
+.signupPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    font-family: "Arial", sans-serif;
+  }
+  
+  .signupPageHeader {
+    text-align: center;
+    margin: 2rem 0;
+  }
+  
+  .signupPageHeader h2 {
+    color: #1877f2;
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+  
+  .signupForm {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 40vw;
+    margin-bottom: 2rem;
+  
+  }
+  
+  .signupForm div {
+    margin-bottom: 1rem;
+  }
+  
+  .signupForm label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .signupForm input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .signupForm input:focus {
+    outline: none;
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+  }
+  
+  .signupForm .input-error {
+    border-color: #f44336;
+  }
+  
+  .signupForm .error {
+    color: #f44336;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  .signupForm button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #1877f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .signupForm button:hover {
+    background-color: #303f9f;
+  }
+  
+  .signupForm button:disabled {
+    background-color: #bdbdbd;
+    cursor: not-allowed;
+  }
+  
+  .otp-timer {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: #1877f2;
+  }
+  .ForgotPasswordAndSingUp{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  @media(max-width:1073px){
+    .ForgotPasswordAndSingUp{
+      display: flex;
+      flex-direction: column;
+    }
+    .signupForm {
+      padding: 2rem;
+      width: 100%;
+      max-width: 70%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .signupPageHeader h2 {
+      font-size: 2rem;
+    }
+  
+    .signupForm {
+      padding: 1.5rem;
+    }
+    .signupForm {
+      padding: 2rem;
+      width: 100%;
+      max-width: 90%;
+    }
+   
+  }
+  
+  @media (max-width: 480px) {
+    .signupPageHeader h2 {
+      font-size: 1.75rem;
+    }
+  
+    .signupForm {
+      padding: 1rem;
+    }
+  
+    .signupForm input {
+      padding: 0.6rem;
+      font-size: 0.9rem;
+    }
+  
+    .signupForm button {
+      padding: 0.6rem;
+      font-size: 0.9rem;
+    }
+    .signupForm {
+      padding: 2rem;
+      width: 100%;
+      max-width: 90%;
+    }
+    
+    
+  }
+  
+  @media (max-width: 320px) {
+    .signupPageHeader h2 {
+      font-size: 1.5rem;
+    }
+  
+    .signupForm label {
+      font-size: 0.9rem;
+    }
+  
+    .signupForm input {
+      padding: 0.5rem;
+      font-size: 0.8rem;
+    }
+  
+    .signupForm button {
+      padding: 0.5rem;
+      font-size: 0.8rem;
+    }
+  
+    .signupForm .error {
+      font-size: 0.75rem;
+    }
+    .signupForm {
+      padding: 2rem;
+      width: 100%;
+      max-width: 90%;
+    }
+  }

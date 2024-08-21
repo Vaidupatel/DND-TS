@@ -1,0 +1,155 @@
+.hero-content {
+    z-index: 1;
+    user-select: none;
+  }
+  
+  .HeroGreet {
+    min-height: 90vh;
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .HeroGreet h2 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: #333;
+    z-index: 1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .HeroGreet > span {
+    font-size: clamp(1rem, 2.5vw, 1.8rem);
+    z-index: 1;
+    color: #555;
+    font-weight: 300;
+  }
+  
+  .HeroGreet h2 > span {
+    color: #5776f2;
+    z-index: 1;
+  }
+  
+  .HeroStartButton {
+    background: linear-gradient(45deg, #007bff, #00bfff);
+    color: #fff;
+    padding: 0.75em 1.5em;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    z-index: 1;
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    text-align: center;
+    min-width: 150px;
+    max-width: 90%;
+  }
+  
+  .HeroStartButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(45deg, #0057b3, #0099cc);
+  }
+  
+  .background-logo {
+    position: absolute;
+    top: 10vh;
+    left: 0;
+    width: 100%;
+    height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.2;
+    z-index: 0;
+    user-select: none;
+  }
+  
+  .logo-container {
+    width: min(80vh, 80vw, 600px);
+    height: min(80vh, 80vw, 600px);
+    position: relative;
+  }
+  
+  .arc-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+  
+  .arc {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .globe-container {
+    width: 80%;
+    height: 80%;
+  }
+  
+  .globe {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    top: 2rem;
+    left: 1rem;
+    animation: rotate 60s linear infinite;
+  }
+  
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .logo-container {
+      width: min(85vh, 85vw, 500px);
+      height: min(85vh, 85vw, 500px);
+    }
+  
+    .globe-container, .arc-container {
+      width: 90%;
+      height: 90%;
+    }
+  
+    .globe {
+      width: 70%;
+      height: 70%;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .logo-container {
+      width: min(90vh, 90vw, 400px);
+      height: min(90vh, 90vw, 400px);
+    }
+  
+    .globe-container, .arc-container {
+      width: 95%;
+      height: 95%;
+    }
+  
+    .globe {
+      width: 70%;
+      height: 70%;
+    }
+  
+    .HeroStartButton {
+      padding: 0.6em 1.2em;
+      min-width: 120px;
+    }
+  }
+  

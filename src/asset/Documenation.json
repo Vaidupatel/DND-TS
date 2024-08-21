@@ -1,0 +1,243 @@
+{
+    "title": "NexGen Sites Platform Documentation",
+    "TableOfContents": {
+        "Getting-Started": "Getting Started",
+        "Interface-Overview": "Interface Overview",
+        "Components-and-Elements": "Components and Elements",
+        "Customizing-Your-Website": "Customizing Your Website",
+        "Managing-Pages": "Managing Pages",
+        "Previewing-and-Exporting": "Previewing and Exporting",
+        "Project-Management": "Project Management",
+        "Tips-and-Tricks": "Tips and Tricks",
+        "Examples": "Examples"
+    },
+    "sections": [
+        {
+            "title": "Getting Started",
+            "id": "Getting-Started",
+            "subsections": [
+                {
+                    "title": "Welcome to our Web Builder Platform! This tool allows you to create websites easily using a drag-and-drop interface. Here's how to get started:",
+                    "content": [
+                        "Sign up for an account",
+                        "Create a new project",
+                        "Use the left sidebar to add components to your canvas",
+                        "Customize your components using the right sidebar",
+                        "Preview your website and export when ready"
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Interface Overview",
+            "id": "Interface-Overview",
+            "subsections": [
+                {
+                    "title": "Navbar",
+                    "content": [
+                        "The navbar contains the following options:",
+                        "Logo: Your platform's logo",
+                        "Home: Return to the main page",
+                        "Documentation: Access this help guide",
+                        "About Us: Learn more about our platform",
+                        "Contact Us: Get in touch with our team",
+                        "Sign Up: Create a new account"
+                    ]
+                },
+                {
+                    "title": "Left Sidebar",
+                    "content": [
+                        "Contains all the components and elements you can add to your website:",
+                        "Layout components (Div, Nav, Header, Footer, etc.)",
+                        "Text elements",
+                        "Buttons",
+                        "Links",
+                        "Icons",
+                        "Lists",
+                        "Tables",
+                        "Media elements (Image, Video, Audio, Map)",
+                        "Input elements"
+                    ]
+                },
+                {
+                    "title": "Canvas Section",
+                    "content": [
+                        "This is where you build your website by dropping components and elements."
+                    ]
+                },
+                {
+                    "title": "Layers Panel",
+                    "content": [
+                        "Shows the structure of your website and allows you to select specific elements."
+                    ]
+                },
+                {
+                    "title": "Right Sidebar",
+                    "content": [
+                        "Used to customize the properties of selected components and elements."
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Components and Elements",
+            "id": "Components-and-Elements",
+            "subsections": [
+                {
+                    "title": "Layout Components",
+                    "content": [
+                        "Div: A generic container for other elements",
+                        "Nav: Used for navigation menus",
+                        "Header: Typically used at the top of a page or section",
+                        "Footer: Used at the bottom of a page or section",
+                        "Section: Defines a section in a document",
+                        "Span: An inline container for text"
+                    ]
+                },
+                {
+                    "title": "Text Elements",
+                    "content": [
+                        "Include headings (H1-H6) and paragraphs for adding text content."
+                    ]
+                },
+                {
+                    "title": "Media Elements",
+                    "content": [
+                        "Image: Add images to your website",
+                        "Video: Embed videos in your pages",
+                        "Audio: Add audio players to your site",
+                        "Map: Embed interactive maps"
+                    ]
+                },
+                {
+                    "title": "Input Elements",
+                    "content": [
+                        "Various form inputs like text fields, checkboxes, radio buttons, etc."
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Customizing Your Website",
+            "id": "Customizing-Your-Website",
+            "content": [
+                "Use the right sidebar to customize your components and elements:",
+                "Adjust sizes (width, height)",
+                "Change colors",
+                "Modify fonts and text styles",
+                "Add padding and margins",
+                "Customize borders",
+                "Set background images or colors"
+            ]
+        },
+        {
+            "title": "Managing Pages",
+            "id": "Managing-Pages",
+            "content": [
+                "Create and manage multiple pages for your website:",
+                "Click on the \"Show Pages\" button in the navbar",
+                "Use the \"+\" button to add a new page",
+                "Click on a page name to switch between pages",
+                "Use the edit icon to rename pages",
+                "Use the delete icon to remove pages (cannot delete the last page)"
+            ]
+        },
+        {
+            "title": "Previewing and Exporting",
+            "id": "Previewing-and-Exporting",
+            "subsections": [
+                {
+                    "title": "Preview",
+                    "content": [
+                        "Click the \"Preview\" button in the navbar to see how your website looks in real-time."
+                    ]
+                },
+                {
+                    "title": "Show Code",
+                    "content": [
+                        "Click the \"Show Code\" button to view the generated code for your current page."
+                    ]
+                },
+                {
+                    "title": "Export Project",
+                    "content": [
+                        "Use the \"Export Project\" button to download your entire website as a set of HTML, CSS, and JavaScript files."
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Project Management",
+            "id": "Project-Management",
+            "subsections": [
+                {
+                    "title": "Create New Project",
+                    "content": [
+                        "Click \"Create New Project\" to start a fresh website. You'll have the option to export your current project before creating a new one."
+                    ]
+                },
+                {
+                    "title": "Delete Project",
+                    "content": [
+                        "Use the \"Delete Project\" button to remove all data related to your current project. This action cannot be undone."
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Tips and Tricks",
+            "id": "Tips-and-Tricks",
+            "content": [
+                "Use the layers panel to easily select nested elements",
+                "Group related elements inside a Div for easier management",
+                "Preview your website frequently to ensure it looks as expected",
+                "Use the right sidebar to fine-tune the appearance of your elements",
+                "Experiment with different layouts and components to create unique designs"
+            ]
+        },
+        {
+            "title": "Examples",
+            "id": "Examples",
+            "subsections": [
+                {
+                    "title": "Adding an Image",
+                    "content": [
+                        "Drag the Image component from the left sidebar onto your canvas",
+                        "Select the image in the canvas or layers panel",
+                        "Use the right sidebar to set the image source, alt text, and dimensions",
+                        "Adjust the image position using drag-and-drop in the canvas"
+                    ]
+                },
+                {
+                    "title": "Creating a Navigation Menu",
+                    "content": [
+                        "Add a Nav component to your canvas",
+                        "Inside the Nav, add multiple Link components",
+                        "Customize each link's text and href property in the right sidebar",
+                        "Style your navigation menu using the properties in the right sidebar"
+                    ]
+                },
+                {
+                    "title": "Embedding a Video",
+                    "content": [
+                        "Drag the Video component onto your canvas",
+                        "Select the video element",
+                        "In the right sidebar, set the video source URL",
+                        "Adjust video properties like autoplay, controls, and dimensions"
+                    ]
+                },
+                {
+                    "title": "Creating a Contact Form",
+                    "content": [
+                        "Add a Form component to your canvas",
+                        "Inside the Form, add Input components for name, email, and message",
+                        "Add a Button component for submission",
+                        "Customize each input field and button using the right sidebar",
+                        "Set up form submission handling in the advanced settings"
+                    ]
+                }
+            ]
+        }
+    ],
+    "conclusion": "Remember, practice makes perfect! Don't hesitate to experiment with different components and layouts to create the perfect website for your needs."
+}
