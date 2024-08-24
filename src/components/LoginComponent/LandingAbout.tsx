@@ -6,7 +6,7 @@ import PrinceImage from "../../asset/Prince_Gondaliya.jpg";
 import NirjalImage from "../../asset/Nirjal_Ambaliya.jpg";
 import VaidikImage from "../../asset/Vaidik_Ghelani.jpg";
 import Team from "../../asset/Team.jpg";
-import "./LandingAboutUs.css";
+import "./LandingAbout.css";
 
 interface FormValues {
     name: string;
@@ -42,24 +42,10 @@ const About: React.FC = () => {
         <section className="about" id="about">
             <div className="about-container">
                 <section className="hero-section">
-                    <h1>Welcome to NexGen Sites</h1>
+                    <h1>Welcome to Farm IT Web Studio</h1>
                     <p>Empowering Your Web Presence</p>
                 </section>
 
-                <section className="company-story">
-                    <h2>Our Story</h2>
-                    <div className="story-content">
-                        <p>
-                            Our journey began with a simple yet powerful idea: to democratize
-                            web development. We envisioned a platform where creativity meets
-                            technology, enabling everyone to build stunning websites
-                            effortlessly.
-                        </p>
-                        <div className="story-image">
-                            <img src={Team} alt="Team" />
-                        </div>
-                    </div>
-                </section>
 
                 <section className="mission-vision">
                     <h2>Mission and Vision</h2>
@@ -108,28 +94,20 @@ const About: React.FC = () => {
                 </section>
 
                 <section className="team-introduction">
-                    <h2>Faces behind NexGen</h2>
+                    <h2>Faces behind Web Studio</h2>
                     <div className="team-members">
-                        <div className="team-member">
-                            <img src={PrinceImage} alt="Prince Gondaliya" />
-                            <h3>Prince Gondaliya</h3>
-                            {/* <p>Founder & CEO</p> */}
-                        </div>
+
                         <div className="team-member">
                             <img src={VaidikImage} alt="Vaidik Ghelani" />
                             <h3>Ghelani Vaidik</h3>
-                            {/* <p>Co-Founder</p> */}
+                            <p>Founder & CEO</p>
                         </div>
-                        <div className="team-member">
-                            <img src={NirjalImage} alt="Nirjal Ambaliya" />
-                            <h3>Ambaliya Nirjal</h3>
-                            {/* <p>Co-Founder</p> */}
-                        </div>
+
                     </div>
                 </section>
 
                 <section className="unique-selling-points">
-                    <h2>Why Choose NexGen Sites?</h2>
+                    <h2>Why Choose Web Studio Sites?</h2>
                     <div className="usp-grid">
                         <div className="usp-item">
                             <h3>User-friendly Interface</h3>
@@ -159,7 +137,7 @@ const About: React.FC = () => {
                     <div className="testimonial-carousel">
                         <div className="testimonial-item">
                             <p>
-                                "NexGen Sites transformed our online presence. It's incredibly
+                                "Web Studio transformed our online presence. It's incredibly
                                 easy to use!"
                             </p>
                             <h4>- Sarah J., Small Business Owner</h4>
@@ -286,13 +264,13 @@ const About: React.FC = () => {
                                 </div>
                                 <div className="informationContact">
                                     <p>
-                                        Email:{" "}
-                                        <a href="mailto:support@NexGenWebCon.com">
-                                            mailto:support@nexgensites.com
+                                        Email:
+                                        <a href="mailto:support.webstudio@Farmit.com">
+                                            support.webstudio@Farmit.com
                                         </a>
                                     </p>
-                                    <p>Phone: +91 8347560082</p>
-                                    <p>Address: 811, Silver Trade Center, Surat, India</p>
+                                    <p>+91 7201927081</p>
+                                    <p>506, Zion Prime,Nr.Copper Stone, Thaltej - Shilaj Road,Thaltej, Ahmedabad, GJ, IN </p>
                                 </div>
                             </div>
 
@@ -344,14 +322,12 @@ const About: React.FC = () => {
                 <section className="map">
                     <h2>Our Location</h2>
                     <iframe
-                        title="STC ,Surat Gujarat"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2852.8516723659927!2d72.86806076829943!3d21.232887638669023!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04f7adffdd9f9%3A0x8e5947b84d098fd9!2sSilver%20Trade%20Center!5e0!3m2!1sen!2sin!4v1723528272020!5m2!1sen!2sin"
-                        width="600"
+                        title="Farm IT Web Studios ,Ahmedabad Gujarat"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d941.6786175040787!2d72.49231292166213!3d23.05145857789617!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e9b6199ef2577%3A0x32ec5eca5fb17d9f!2sZion%20prime!5e0!3m2!1sen!2sin!4v1724304111467!5m2!1sen!2sin" width="600"
                         height="450"
                         allowFullScreen
                         loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                    ></iframe>
+                        referrerPolicy="no-referrer-when-downgrade"></iframe>
                 </section>
 
             </div>

@@ -1,7 +1,7 @@
 import React from "react";
-import "./LandingFooter.css";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "./LandingFooter.css";
 import {
     faFacebookF,
     faTwitter,
@@ -11,7 +11,7 @@ import {
     faPinterest,
     faGithub
 } from "@fortawesome/free-brands-svg-icons";
-import logo from "../../asset/NexGenTechnology.png";
+import WebStudio from "../../asset/WebStudio.png";
 
 const Footer: React.FC = () => {
     return (
@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
                 <div className="footer-main">
                     <div className="footer-logo">
                         <Link to="/">
-                            <img src={logo} alt="NexGen Sites Logo" />
+                            <img src={WebStudio} alt="Web Studio Sites Logo" />
                         </Link>
                     </div>
                     <div className="footer-sections">
@@ -41,14 +41,14 @@ const Footer: React.FC = () => {
                                 <li><Link to="/merchant-support">Merchant support</Link></li>
                                 <li><Link to="/help-center">Help center</Link></li>
                                 <li><Link to="/hire-a-partner">Hire a Partner</Link></li>
-                                <li><Link to="/nexgen-academy">NexGen Academy</Link></li>
-                                <li><Link to="/nexgen-community">NexGen Community</Link></li>
+                                <li><Link to="/Farm IT-academy">Farm IT Academy</Link></li>
+                                <li><Link to="/Farm IT-community">Farm IT Community</Link></li>
                             </ul>
                         </div>
                         <div className="footer-section">
                             <h3>Developers</h3>
                             <ul>
-                                <li><Link to="/nexgen-dev">NexGen.dev</Link></li>
+                                <li><Link to="/Farm IT-dev">Farm IT.dev</Link></li>
                                 <li><Link to="/api-documentation">API documentation</Link></li>
                                 <li><Link to="/dev-degree">Dev Degree</Link></li>
                             </ul>
@@ -56,9 +56,9 @@ const Footer: React.FC = () => {
                         <div className="footer-section">
                             <h3>Products</h3>
                             <ul>
-                                <li><Link to="/nexgen-plus">NexGen Plus</Link></li>
+                                <li><Link to="/Farm IT-plus">Farm IT Plus</Link></li>
                                 <li><Link to="/linkpop">Linkpop</Link></li>
-                                <li><Link to="/nexgen-enterprise">NexGen for enterprise</Link></li>
+                                <li><Link to="/Farm IT-enterprise">Farm IT for enterprise</Link></li>
                             </ul>
                         </div>
                     </div>

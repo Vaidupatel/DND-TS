@@ -76,6 +76,12 @@ const UlComponent: React.FC<UlComponentProps> = ({ childIndex, parentID, depth, 
         { label: 'Padding', type: 'text', name: 'padding', value: baseStyles.padding ? String(baseStyles.padding) : '' },
         { label: 'Margin', type: 'text', name: 'margin', value: baseStyles.margin ? String(baseStyles.margin) : '' },
         { label: 'List Style Type', type: 'text', name: 'listStyleType', value: baseStyles.listStyleType ? String(baseStyles.listStyleType) : '' },
+        { label: 'Display', type: 'text', name: 'display', value: baseStyles.display ? String(baseStyles.display) : '' },
+        { label: 'Display', type: 'text', name: 'display', value: baseStyles.display ? String(baseStyles.display) : '' },
+        { label: 'Flex Direction', type: 'text', name: 'flexDirection', value: baseStyles.flexDirection ? String(baseStyles.flexDirection) : '' },
+        { label: 'Justify Content', type: 'text', name: 'justifyContent', value: baseStyles.justifyContent ? String(baseStyles.justifyContent) : '' },
+        { label: 'Align Items', type: 'text', name: 'alignItems', value: baseStyles.alignItems ? String(baseStyles.alignItems) : '' },
+        { label: 'Gap', type: 'text', name: 'gap', value: baseStyles.gap ? String(baseStyles.gap) : '' },
         { label: 'List Style Position', type: 'text', name: 'listStylePosition', value: baseStyles.listStylePosition ? String(baseStyles.listStylePosition) : '' },
     ], [baseStyles]);
 

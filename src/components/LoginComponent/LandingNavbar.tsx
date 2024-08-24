@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import logo from "../../asset/NexGenSites_Technology.png";
+import logo from "../../asset/WebStudioLogo.png";
 import { Link, NavLink } from "react-router-dom";
 import { useApp } from "../../Contexts/Context";
+
 import "./LandingNavbar.css";
 
 const Navbar = () => {
@@ -17,7 +18,7 @@ const Navbar = () => {
       <nav className="Navbar">
         <ul className="NavbarLeftSide">
           <Link className="NavbarLogo" to="/">
-            <img src={logo} alt="NexGen Sites Logo" className="Navbar-NexgenLogo" />
+            <img src={logo} alt="Web Studio Logo" className="Navbar-WebStudioLogo" />
           </Link>
         </ul>
         <div className="NavbarHamburger" onClick={toggleMenu}>

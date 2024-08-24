@@ -28,13 +28,14 @@ import { addArticleChild, setInitialArticleChild } from '../store/slices/article
 import Dropdown from './DropdownComponent';
 import { Components } from './types';
 import { addParagraphChild } from '../store/slices/paragraphChildSlice';
+import { Link } from 'react-router-dom';
 
 
 const FirstSection: React.FC = () => {
 
 
     const dispatch = useDispatch<AppDispatch>();
-   
+
 
 
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -275,6 +276,7 @@ const FirstSection: React.FC = () => {
 
                         />
                     ))}
+                    <Link to="/" className='dropdown-button' style={{ listStyle: "none", color: "#000000" }}>Home</Link>
                 </div>
                 <Droppable draggedItemType={draggedItemType} />
                 <div style={styles[0].addedComp}>

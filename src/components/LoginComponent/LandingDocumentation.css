@@ -9,7 +9,8 @@
   }
   
   .documentation-header {
-    background: linear-gradient(90deg, #84a0ae, #3d6e7f, #0f2027);
+    /* background: linear-gradient(90deg, #84a0ae, #3d6e7f, #0f2027); */
+    background-color: #84a0ae;
     padding: 40px 20px;
     border-radius: 15px;
     margin-bottom: 40px;

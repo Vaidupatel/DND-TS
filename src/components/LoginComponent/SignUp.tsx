@@ -79,7 +79,7 @@ const SignUp = () => {
           title: "OTP Sent",
           message: "Please check your email for the OTP. Valid for 1 minute.",
           variant: "success",
-          duration: 1000,
+          duration: 10000,
         });
       } else {
         setAlert({
